@@ -344,17 +344,7 @@ export default {
                 y: "0px"
             },
             loginstyle: "",
-            notifications: [
-            {
-                    id: 1,
-                    time: '2024-03-21 10:30:00',
-                    title: '测试剧本执行',
-                    message: '剧本执行完成，共处理15条数据',
-                    status: '待处理',
-                    link: '/workflow/123',
-                    workflowName: '安全事件处理'
-                },
-            ],
+            notifications: [],
             notificationStyle: "height: calc(100vh -265px); overflow-y: auto;",
         }
     },
@@ -567,27 +557,36 @@ export default {
                         this.exec_data = res.data;
                         this.onLoadMain2();
 
-                        
-                        this.notifications = this.exec_data.map((item) => {
-                            let color = "#52c41a"; 
-                            let icon = "check-circle"; 
+                        // Also fetch alert data if you have an API endpoint for it
+                        this.fetchAlertData().then(alertsData => {
+                            // Map your notifications with alert info
+                            this.notifications = this.exec_data.map((item, index) => {
+                                let color = "#52c41a"; 
+                                let icon = "check-circle"; 
 
-                            if (item.status === "警告") {
-                                color = "#faad14";
-                                icon = "warning";
-                            } else if (item.status === "错误") {
-                                color = "#f5222d";
-                                icon = "close-circle";
-                            }
+                                if (item.status === "警告") {
+                                    color = "#faad14";
+                                    icon = "warning";
+                                } else if (item.status === "错误") {
+                                    color = "#f5222d";
+                                    icon = "close-circle";
+                                }
 
-                            return {
-                                icon: icon,
-                                color: color,
-                                title: `剧本：${item.name}`,
-                                description: `状态：${item.status}，执行时间：${item.time}`,
-                                workflowName: item.name,
-                                link: item.link
-                            };
+                                // Match with alert info if possible (this is just an example)
+                                const alertInfo = alertsData && alertsData.list && alertsData.list[index % alertsData.list.length];
+
+                                return {
+                                    icon: icon,
+                                    color: color,
+                                    title: `剧本：${item.name}`,
+                                    description: `状态：${item.status}，执行时间：${item.time}`,
+                                    workflowName: item.name,
+                                    link: item.link,
+                                    status: index % 2 === 0 ? '待处理' : '已处理', // Example status alternation
+                                    message: `剧本执行${index % 2 === 0 ? '开始' : '完成'}，${alertInfo ? '对应告警ID: ' + alertInfo.alert_id : '无告警信息'}`,
+                                    alertInfo: alertInfo // Include the alert info
+                                };
+                            });
                         });
                     } else {
                         this.$message.error(res.msg);
@@ -808,11 +807,16 @@ export default {
         showNotificationDetail(item) {
             // Using $confirm instead of $modal.info since $modal is undefined
             this.$confirm({
-                title: '通知',
+                title: '告警通知',
+                width: 700, // Make the modal wider to accommodate alert details
                 content: h => {
+                    // Check if alert info exists
+                    const hasAlertInfo = item.alertInfo && typeof item.alertInfo === 'object';
+                    
                     return h('div', [
+                        // Basic notification info
                         h('p', [
-                            h('span', { style: { fontWeight: 'bold' } }, ''),
+                            h('span', { style: { fontWeight: 'bold' } }, '通知标题: '),
                             item.title
                         ]),
                         h('p', [
@@ -820,7 +824,47 @@ export default {
                             h('br'),
                             h('div', { style: { margin: '10px 0', padding: '10px', border: '1px solid #f0f0f0', borderRadius: '4px' } }, item.message)
                         ]),
-                        h('p', [
+                        
+                        // Alert information section (if available)
+                        hasAlertInfo ? h('div', [
+                            h('h3', { style: { marginTop: '20px', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px' } }, '告警详情'),
+                            h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '10px' } }, [
+                                // First column
+                                h('div', [
+                                    h('p', [h('strong', '告警ID: '), item.alertInfo.alert_id || '--']),
+                                    h('p', [h('strong', '攻击类型: '), item.alertInfo.attack_type || '--']),
+                                    h('p', [h('strong', '严重程度: '), 
+                                        h('span', { style: { 
+                                            color: getSeverityColor(item.alertInfo.severity),
+                                            fontWeight: 'bold'
+                                        } }, item.alertInfo.severity || '--')
+                                    ]),
+                                    h('p', [h('strong', '协议: '), item.alertInfo.protocol || '--']),
+                                    h('p', [h('strong', '检测系统: '), item.alertInfo.detection_system || '--']),
+                                ]),
+                                // Second column
+                                h('div', [
+                                    h('p', [h('strong', '源IP: '), item.alertInfo.source_ip || '--']),
+                                    h('p', [h('strong', '源端口: '), item.alertInfo.source_port || '--']),
+                                    h('p', [h('strong', '目标IP: '), item.alertInfo.destination_ip || '--']),
+                                    h('p', [h('strong', '目标端口: '), item.alertInfo.destination_port || '--']),
+                                    h('p', [h('strong', '告警时间: '), item.alertInfo.timestamp || '--']),
+                                ])
+                            ]),
+                            h('p', { style: { marginTop: '10px' } }, [
+                                h('strong', '特征: '), 
+                                h('div', { style: { padding: '8px', background: '#f9f9f9', borderRadius: '4px', marginTop: '4px' } }, item.alertInfo.signature || '--')
+                            ]),
+                            h('p', [h('strong', '状态: '), 
+                                h('span', { style: { 
+                                    color: getStatusColor(item.alertInfo.status),
+                                    fontWeight: 'bold'
+                                } }, item.alertInfo.status || '--')
+                            ])
+                        ]) : null,
+                        
+                        // Workflow/Processing info
+                        h('p', { style: { marginTop: '15px' } }, [
                             h('span', { style: { fontWeight: 'bold' } }, '处理: '),
                             item.status === '待处理' ? 
                             [
@@ -835,7 +879,7 @@ export default {
                                         }
                                     }
                                 }, `已生成剧本${item.workflowName}（点击跳转）`),
-                                '，可重试'
+                                '，可审计'
                             ] : 
                             [
                                 h('a', {
@@ -858,6 +902,56 @@ export default {
                 cancelButtonProps: { style: { display: 'none' } }, // Hide cancel button
                 icon: 'info-circle',
                 okType: 'default'
+            });
+        },
+        // Add helper methods for coloring severity and status
+        getSeverityColor(severity) {
+            switch(severity && severity.toLowerCase()) {
+                case 'high': 
+                case '高':
+                    return '#f5222d';
+                case 'medium': 
+                case '中':
+                    return '#faad14';
+                case 'low': 
+                case '低':
+                    return '#52c41a';
+                default:
+                    return '#1890ff';
+            }
+        },
+        getStatusColor(status) {
+            switch(status && status.toLowerCase()) {
+                case 'open': 
+                case '未处理':
+                    return '#f5222d';
+                case 'in progress': 
+                case '处理中':
+                    return '#faad14';
+                case 'closed': 
+                case '已处理':
+                case '已关闭':
+                    return '#52c41a';
+                default:
+                    return '#1890ff';
+            }
+        },
+        // Add a method to fetch alert data from your API
+        fetchAlertData() {
+            return this.$http.post("/api/v1/alerts", {
+                // Add any required parameters for your API
+                page: 1,
+                size: 10
+            }).then(res => {
+                if (res.code == 0) {
+                    return res.data;
+                } else {
+                    this.$message.error("获取告警信息失败: " + res.msg);
+                    return { list: [] };
+                }
+            }).catch(err => {
+                console.error("Failed to fetch alert data:", err);
+                return { list: [] };
             });
         },
     },
