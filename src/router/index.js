@@ -48,73 +48,73 @@ export default new Router({
         path: "/dashboard",
         name: "Dashboard",
         component: Dashboard,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/workflow",
         name: "WorkflowHome",
         component: WorkflowHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/workflow/edit/:uuid",
         name: "WorkflowEdit",
         component: WorkflowEdit,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/workflow/statistics/:uuid",
         name: "StatisticsHome",
         component: StatisticsHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/logs",
         name: "LogsHome",
         component: LogsHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/app",
         name: "AppHome",
         component: AppHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/variablen",
         name: "VariablenHome",
         component: VariablenHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/user",
         name: "UserHome",
         component: UserHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/system",
         name: "SystemHome",
         component: SystemHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/timer",
         name: "TimerHome",
         component: TimerHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/audit",
         name: "AuditHome",
         component: AuditHome,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     },
     {
         path: "/403",
         name: "403",
         component: x403,
-        meta: { requireAuth: true }
+        meta: { requireAuth: false }
     }
     ]
 });

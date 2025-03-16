@@ -6,7 +6,12 @@
                 <a-col :span="24">
                     <div class="sound_div">
                         <a-icon type="sound" />
-                        <span class="sound_text">{{w5_json.notice}}</span>
+                        <span class="sound_text" v-if="notifications && notifications.length > 0">
+                            {{ notifications[0].title }} - {{ notifications[0].message }}
+                        </span>
+                        <span class="sound_text" v-else>
+                            暂无告警信息
+                        </span>
                     </div>
                 </a-col>
                 <a-col :span="6">
@@ -69,17 +74,15 @@
                                 <span :class="`cur `+execType6" @click="onLoadExec(6)">本年</span>
                             </div>
                         </span>
-                        <div class="tb_div" id="main2">
-
-                        </div>
+                        <div class="tb_div" id="main2"></div>
                     </a-card>
                 </a-col>
                 <a-col :span="8">
                     <a-card size="small">
                         <span slot="title" class="titlex">
-                            <a-icon type="pie-chart" /> 剧本统计</span>
-                        <div class="tb_div" id="main1">
-                        </div>
+                            <a-icon type="pie-chart" /> 剧本统计
+                        </span>
+                        <div class="tb_div" id="main1"></div>
                     </a-card>
                 </a-col>
 
@@ -211,12 +214,32 @@
                     </a-card>
                 </a-col>
                 <a-col :span="24">
-                    <a-card class="loginHistory" :style="loginstyle">
-                        <div class="avdiv" v-for="(item,index) in login_history" :key="index">
-                            <div class="avatar" v-html="item.avatar"></div>
+                    <div class="notificationTitle" style="font-size: 14px; color: #dbdbdb;">
+                        <a-icon type="bell" style="margin-right: 8px;" />
+                        消息通知
+                    </div>
+                    <a-card class="notificationCard" :style="notificationStyle">
+                        <div class="notification" v-for="(item, index) in notifications" :key="item.id">
                             <div class="info">
-                                <div>{{item.nick_name}}</div>
-                                <div>{{getFromTime(Dayjs(item.login_time).subtract(8, 'hour').format('YYYY-MM-DD HH:mm:ss'))}}</div>
+                                <div class="title">
+                                    <span>{{ item.time }}</span>
+                                    <a-icon type="close" class="delete-icon" @click="removeNotification(index)" />
+                                </div>
+                                <div class="notification-title">
+                                    <span>{{ item.title }}</span>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="message">{{ item.message }}</div>
+                                </div>
+                                <div class="notification-status">
+                                    <span class="status-label">当前状态：</span>
+                                    <span class="status-tag" 
+                                          :class="item.status === '待处理' ? 'pending' : 'completed'"
+                                          @click="showNotificationDetail(item)"
+                                          style="cursor: pointer">
+                                        {{ item.status }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </a-card>
@@ -317,7 +340,9 @@ export default {
             sy: {
                 y: "0px"
             },
-            loginstyle: ""
+            loginstyle: "",
+            notifications: [],
+            notificationStyle: "height: calc(100vh -265px); overflow-y: auto;",
         }
     },
     computed: {
@@ -480,7 +505,7 @@ export default {
                 });
         },
         onLoadExec(type = 1) {
-
+            // 设置当前选中的时间范围
             if (type === 1) {
                 this.execType1 = "active";
                 this.execType2 = "";
@@ -525,6 +550,7 @@ export default {
                 this.execType6 = "active";
             }
 
+            // 获取执行数据
             this.$http
                 .post("/api/v1/w5/get/dashboard/exec", {
                     type: type
@@ -533,6 +559,27 @@ export default {
                     if (res.code == 0) {
                         this.exec_data = res.data;
                         this.onLoadMain2();
+
+                        
+                        this.notifications = this.exec_data.map((item) => {
+                            let color = "#52c41a"; 
+                            let icon = "check-circle"; 
+
+                            if (item.status === "警告") {
+                                color = "#faad14";
+                                icon = "warning";
+                            } else if (item.status === "错误") {
+                                color = "#f5222d";
+                                icon = "close-circle";
+                            }
+
+                            return {
+                                icon: icon,
+                                color: color,
+                                title: `剧本：${item.name}`,
+                                description: `状态：${item.status}，执行时间：${item.time}`,
+                            };
+                        });
                     } else {
                         this.$message.error(res.msg);
                     }
@@ -737,7 +784,90 @@ export default {
                         this.login_history = res.data;
                     }
                 });
-        }
+        },
+        removeNotification(index) {
+            this.$confirm({
+                title: '确认删除',
+                content: '是否确认删除该条通知？',
+                okText: '确认',
+                cancelText: '取消',
+                onOk: () => {
+                    this.notifications.splice(index, 1); // 删除指定通知
+                }
+            });
+        },
+        showNotificationDetail(item) {
+            this.$modal.info({
+                title: "通知",
+                width: 400,
+                content: h => {
+                    return h('div', [
+                        h('div', {
+                            style: {
+                                marginBottom: '16px'
+                            }
+                        }, [
+                            h('div', {
+                                style: {
+                                    fontWeight: 'bold',
+                                    marginBottom: '8px'
+                                }
+                            }, '通知标题：' + item.title),
+                            h('div', {
+                                style: {
+                                    marginBottom: '8px'
+                                }
+                            }, '消息内容'),
+                            h('div', {
+                                style: {
+                                    border: '1px solid #e8e8e8',
+                                    padding: '8px',
+                                    background: '#fff',
+                                    minHeight: '60px'
+                                }
+                            }, item.message),
+                            h('div', {
+                                style: {
+                                    marginTop: '8px'
+                                }
+                            }, [
+                                '处理：',
+                                item.status === '待处理' ? 
+                                [
+                                    h('a', {
+                                        style: {
+                                            color: '#1890ff'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.$router.push(item.link);
+                                                this.$modal.destroy();
+                                            }
+                                        }
+                                    }, '已生成剧本${item.name}（点击跳转）'),
+                                    '，可重试'
+                                ] : 
+                                [
+                                    h('a', {
+                                        style: {
+                                            color: '#1890ff'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.$router.push(item.link);
+                                                this.$modal.destroy();
+                                            }
+                                        }
+                                    }, '已生成剧本${item.name}（点击跳转）'),
+                                    '，已处理'
+                                ]
+                            ])
+                        ])
+                    ]);
+                },
+                okText: "关闭"
+            });
+        },
     },
     watch: {
         '$store.getters.getTheme': function (e) {
@@ -761,9 +891,8 @@ export default {
             }
         }
     }
-}
+};
 </script>
-
 <style lang="less" scoped>
 .tb_div {
     height: 250px;
@@ -938,6 +1067,43 @@ export default {
             background: #e8e8e8;
         }
     }
+
+    .notificationTitle {
+        color: #333333;
+        
+        .anticon {
+            color: #1890ff;
+        }
+    }
+
+    .notificationCard {
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+        .notification {
+            &:not(:last-child) {
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .info {
+                .title {
+                    color: #8c8c8c;
+                }
+
+                .notification-title {
+                    color: #262626;
+                }
+
+                .message {
+                    color: #595959;
+                }
+
+                .status-label {
+                    color: #8c8c8c;
+                }
+            }
+        }
+    }
 }
 
 .dark {
@@ -1093,6 +1259,43 @@ export default {
         .ant-divider-vertical {
             margin: 0 4 px;
             background: #303030;
+        }
+    }
+
+    .notificationTitle {
+        color: #dbdbdb;
+        
+        .anticon {
+            color: #1890ff;
+        }
+    }
+
+    .notificationCard {
+        background: #202020;
+        border: 1px solid #303030;
+
+        .notification {
+            &:not(:last-child) {
+                border-bottom: 1px solid #303030;
+            }
+
+            .info {
+                .title {
+                    color: #8b8b8b;
+                }
+
+                .notification-title {
+                    color: #dbdbdb;
+                }
+
+                .message {
+                    color: #8b8b8b;
+                }
+
+                .status-label {
+                    color: #8b8b8b;
+                }
+            }
         }
     }
 }
