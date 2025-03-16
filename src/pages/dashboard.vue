@@ -5,8 +5,11 @@
             <a-row :gutter="[16,16]">
                 <a-col :span="24">
                     <div class="sound_div">
-                        <a-icon type="sound" />
-                        <span class="sound_text" v-if="notifications && notifications.length > 0">
+                        <a-icon type="sound" style="color: #ff4d4f;" />
+                        <span class="sound_text" 
+                              v-if="notifications && notifications.length > 0"
+                              @click="showNotificationDetail(notifications[0])"
+                              style="cursor: pointer; text-decoration: underline;">
                             {{ notifications[0].title }} - {{ notifications[0].message }}
                         </span>
                         <span class="sound_text" v-else>
@@ -341,7 +344,17 @@ export default {
                 y: "0px"
             },
             loginstyle: "",
-            notifications: [],
+            notifications: [
+            {
+                    id: 1,
+                    time: '2024-03-21 10:30:00',
+                    title: '测试剧本执行',
+                    message: '剧本执行完成，共处理15条数据',
+                    status: '待处理',
+                    link: '/workflow/123',
+                    workflowName: '安全事件处理'
+                },
+            ],
             notificationStyle: "height: calc(100vh -265px); overflow-y: auto;",
         }
     },
@@ -453,12 +466,6 @@ export default {
                     }
                 });
 
-            // setTimeout(() => {
-            //     document.getElementById("avatar").getElementsByTagName("svg")[0].childNodes[0].style = "fill: #814444;";
-            //     let newbg = document.getElementById("avatar").getElementsByTagName("svg")[0];
-            //     let newAvatar = (new XMLSerializer()).serializeToString(newbg);
-            //     this.avatar = newAvatar;
-            // }, 2000);
         },
         gd() {
             this.$router.push({
@@ -578,6 +585,8 @@ export default {
                                 color: color,
                                 title: `剧本：${item.name}`,
                                 description: `状态：${item.status}，执行时间：${item.time}`,
+                                workflowName: item.name,
+                                link: item.link
                             };
                         });
                     } else {
@@ -797,75 +806,58 @@ export default {
             });
         },
         showNotificationDetail(item) {
-            this.$modal.info({
-                title: "通知",
-                width: 400,
+            // Using $confirm instead of $modal.info since $modal is undefined
+            this.$confirm({
+                title: '通知',
                 content: h => {
                     return h('div', [
-                        h('div', {
-                            style: {
-                                marginBottom: '16px'
-                            }
-                        }, [
-                            h('div', {
-                                style: {
-                                    fontWeight: 'bold',
-                                    marginBottom: '8px'
-                                }
-                            }, '通知标题：' + item.title),
-                            h('div', {
-                                style: {
-                                    marginBottom: '8px'
-                                }
-                            }, '消息内容'),
-                            h('div', {
-                                style: {
-                                    border: '1px solid #e8e8e8',
-                                    padding: '8px',
-                                    background: '#fff',
-                                    minHeight: '60px'
-                                }
-                            }, item.message),
-                            h('div', {
-                                style: {
-                                    marginTop: '8px'
-                                }
-                            }, [
-                                '处理：',
-                                item.status === '待处理' ? 
-                                [
-                                    h('a', {
-                                        style: {
-                                            color: '#1890ff'
-                                        },
-                                        on: {
-                                            click: () => {
-                                                this.$router.push(item.link);
-                                                this.$modal.destroy();
-                                            }
+                        h('p', [
+                            h('span', { style: { fontWeight: 'bold' } }, ''),
+                            item.title
+                        ]),
+                        h('p', [
+                            h('span', { style: { fontWeight: 'bold' } }, '消息内容: '),
+                            h('br'),
+                            h('div', { style: { margin: '10px 0', padding: '10px', border: '1px solid #f0f0f0', borderRadius: '4px' } }, item.message)
+                        ]),
+                        h('p', [
+                            h('span', { style: { fontWeight: 'bold' } }, '处理: '),
+                            item.status === '待处理' ? 
+                            [
+                                h('a', {
+                                    style: {
+                                        color: '#1890ff'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.$router.push(item.link);
+                                            this.$confirm.destroy();
                                         }
-                                    }, '已生成剧本${item.name}（点击跳转）'),
-                                    '，可重试'
-                                ] : 
-                                [
-                                    h('a', {
-                                        style: {
-                                            color: '#1890ff'
-                                        },
-                                        on: {
-                                            click: () => {
-                                                this.$router.push(item.link);
-                                                this.$modal.destroy();
-                                            }
+                                    }
+                                }, `已生成剧本${item.workflowName}（点击跳转）`),
+                                '，可重试'
+                            ] : 
+                            [
+                                h('a', {
+                                    style: {
+                                        color: '#1890ff'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.$router.push(item.link);
+                                            this.$confirm.destroy();
                                         }
-                                    }, '已生成剧本${item.name}（点击跳转）'),
-                                    '，已处理'
-                                ]
-                            ])
+                                    }
+                                }, `已生成剧本${item.workflowName}（点击跳转）`),
+                                '，已处理'
+                            ]
                         ])
                     ]);
                 },
-                okText: "关闭"
+                okText: '关闭',
+                cancelButtonProps: { style: { display: 'none' } }, // Hide cancel button
+                icon: 'info-circle',
+                okType: 'default'
             });
         },
     },
