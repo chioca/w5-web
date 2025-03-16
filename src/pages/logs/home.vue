@@ -365,7 +365,7 @@ export default {
         onLoad(keywords = "", select_type = 0, page = 1, page_count = 10) {
             this.loading = true;
             this.$http
-                .post("/api/v1/w5/get/logs/list", {
+                .post("/api/v1/soar/get/logs/list", {
                     keywords: keywords,
                     type: select_type,
                     page: page,
@@ -385,7 +385,7 @@ export default {
         },
         onSelectType() {
             this.$http
-                .post("/api/v1/w5/get/workflow/simple_list", {
+                .post("/api/v1/soar/get/workflow/simple_list", {
                     type: 0,
                 })
                 .then((res) => {
@@ -398,7 +398,7 @@ export default {
         },
         del(id) {
             this.$http
-                .post("/api/v1/w5/post/logs/del", {
+                .post("/api/v1/soar/post/logs/del", {
                     id: id,
                 })
                 .then((res) => {
@@ -436,7 +436,7 @@ export default {
         onLoadReport(keywords = "", page = 1, page_count = 10) {
             this.loading = true;
             this.$http
-                .post("/api/v1/w5/get/report/list", {
+                .post("/api/v1/soar/get/report/list", {
                     keywords: keywords,
                     page: page,
                     page_count: page_count
@@ -455,7 +455,7 @@ export default {
         onReportLog(only_id) {
             this.loading = true;
             this.$http
-                .post("/api/v1/w5/get/report/log", {
+                .post("/api/v1/soar/get/report/log", {
                     only_id: only_id,
                 })
                 .then((res) => {
@@ -470,7 +470,7 @@ export default {
         },
         delReport(id) {
             this.$http
-                .post("/api/v1/w5/post/report/del", {
+                .post("/api/v1/soar/post/report/del", {
                     id: id,
                 })
                 .then((res) => {

@@ -502,7 +502,7 @@ export default {
         onLoad(keywords = "", page = 1, page_count = 10) {
             this.loading = true;
             this.$http
-                .post("/api/v1/w5/get/user/list", {
+                .post("/api/v1/soar/get/user/list", {
                     keywords: keywords,
                     page: page,
                     page_count: page_count
@@ -520,7 +520,7 @@ export default {
         },
         del(id) {
             this.$http
-                .post("/api/v1/w5/post/user/del", {
+                .post("/api/v1/soar/post/user/del", {
                     id: id,
                 })
                 .then((res) => {
@@ -546,7 +546,7 @@ export default {
                     }
 
                     this.$http
-                        .post("/api/v1/w5/post/user/add", {
+                        .post("/api/v1/soar/post/user/add", {
                             account: values.account,
                             passwd: values.passwd,
                             nick_name: values.nick_name,
@@ -594,7 +594,7 @@ export default {
                     }
 
                     this.$http
-                        .post("/api/v1/w5/post/user/update", {
+                        .post("/api/v1/soar/post/user/update", {
                             id: this.key,
                             nick_name: values.nick_name,
                             email: values.email,
@@ -663,7 +663,7 @@ export default {
         },
         onLoadRoleList() {
             this.$http
-                .post("/api/v1/w5/get/role/list")
+                .post("/api/v1/soar/get/role/list")
                 .then((res) => {
                     if (res.code == 0) {
                         this.role_list = res.data;
@@ -689,7 +689,7 @@ export default {
             this.nav_key = []
 
             this.$http
-                .post("/api/v1/w5/get/nav/list")
+                .post("/api/v1/soar/get/nav/list")
                 .then((res) => {
                     if (res.code == 0) {
                         this.nav_list = res.data;
@@ -704,7 +704,7 @@ export default {
                 this.role_remarks = remarks;
 
                 this.$http
-                    .post("/api/v1/w5/get/role_nav/list", {
+                    .post("/api/v1/soar/get/role_nav/list", {
                         role_id: id,
                     })
                     .then((res) => {
@@ -719,7 +719,7 @@ export default {
         },
         onUpdateRole() {
             this.$http
-                .post("/api/v1/w5/post/role_nav/add", {
+                .post("/api/v1/soar/post/role_nav/add", {
                     id: this.role_id,
                     name: this.role_name,
                     nav_key: this.nav_key,
@@ -737,7 +737,7 @@ export default {
         },
         onDelRole(id) {
             this.$http
-                .post("/api/v1/w5/post/role_nav/del", {
+                .post("/api/v1/soar/post/role_nav/del", {
                     id: id,
                 })
                 .then((res) => {
@@ -760,7 +760,7 @@ export default {
             }
 
             this.$http
-                .post("/api/v1/w5/post/user/status", {
+                .post("/api/v1/soar/post/user/status", {
                     id: id,
                     status: status
                 })

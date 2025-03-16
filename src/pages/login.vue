@@ -95,7 +95,7 @@ export default {
                     this.loading = true;
 
                     this.$http
-                        .post("/api/v1/w5/login", {
+                        .post("/api/v1/soar/login", {
                             account: values.userName,
                             passwd: values.password,
                         })

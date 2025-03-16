@@ -297,7 +297,7 @@ export default {
             this.loading = true;
             this.onSelectType();
             this.$http
-                .post("/api/v1/w5/get/workflow/list", {
+                .post("/api/v1/soar/get/workflow/list", {
                     keywords: keywords,
                     type: type,
                     page: page,
@@ -316,7 +316,7 @@ export default {
         },
         onSaveUrlInput() {
             this.$http
-                .post("/api/v1/w5/get/workflow/import_url", {
+                .post("/api/v1/soar/get/workflow/import_url", {
                     url: this.input_url
                 })
                 .then((res) => {
@@ -334,7 +334,7 @@ export default {
         },
         onDown(uuid) {
             this.$http
-                .post("/api/v1/w5/post/workflow/detail", {
+                .post("/api/v1/soar/post/workflow/detail", {
                     uuid: uuid
                 })
                 .then((res) => {
@@ -490,7 +490,7 @@ export default {
             }
 
             this.$http
-                .post("/api/v1/w5/post/workflow/add", {
+                .post("/api/v1/soar/post/workflow/add", {
                     type: 1,
                     name: data_list.name,
                     remarks: data_list.remarks,
@@ -529,7 +529,7 @@ export default {
         },
         onSelectType() {
             this.$http
-                .post("/api/v1/w5/get/type/list", {
+                .post("/api/v1/soar/get/type/list", {
                     type: 1,
                 })
                 .then((res) => {
@@ -542,7 +542,7 @@ export default {
         },
         del(uuid) {
             this.$http
-                .post("/api/v1/w5/post/workflow/del", {
+                .post("/api/v1/soar/post/workflow/del", {
                     uuid: uuid,
                 })
                 .then((res) => {
@@ -564,7 +564,7 @@ export default {
         },
         tzAddPlayBook() {
             this.$http
-                .post("/api/v1/w5/post/workflow/add", {
+                .post("/api/v1/soar/post/workflow/add", {
                     type: 0
                 })
                 .then((res) => {
@@ -604,7 +604,7 @@ export default {
             }
 
             this.$http
-                .post("/api/v1/w5/post/workflow/status", {
+                .post("/api/v1/soar/post/workflow/status", {
                     id: id,
                     status: status
                 })

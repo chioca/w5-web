@@ -322,7 +322,7 @@ export default {
         onLoad(keywords = "", type = 0) {
             this.loading = true;
             this.$http
-                .post("/api/v1/w5/get/variablen/list", {
+                .post("/api/v1/soar/get/variablen/list", {
                     type: type,
                     keywords: keywords,
                 })
@@ -339,7 +339,7 @@ export default {
         },
         onSelectType() {
             this.$http
-                .post("/api/v1/w5/get/type/list", {
+                .post("/api/v1/soar/get/type/list", {
                     type: 2,
                 })
                 .then((res) => {
@@ -352,7 +352,7 @@ export default {
         },
         del(id) {
             this.$http
-                .post("/api/v1/w5/post/variablen/del", {
+                .post("/api/v1/soar/post/variablen/del", {
                     id: id,
                 })
                 .then((res) => {
@@ -372,7 +372,7 @@ export default {
                     this.loadingAdd = true;
 
                     this.$http
-                        .post("/api/v1/w5/post/variablen/add", {
+                        .post("/api/v1/soar/post/variablen/add", {
                             type_id: values.type,
                             key: values.keys,
                             value: values.values,
@@ -400,7 +400,7 @@ export default {
                     this.loadingUpdate = true;
 
                     this.$http
-                        .post("/api/v1/w5/post/variablen/update", {
+                        .post("/api/v1/soar/post/variablen/update", {
                             id: this.key,
                             type_id: values.type,
                             key: values.keys,
@@ -467,7 +467,7 @@ export default {
             }
 
             this.$http
-                .post("/api/v1/w5/post/variablen/status", {
+                .post("/api/v1/soar/post/variablen/status", {
                     id: id,
                     status: status
                 })

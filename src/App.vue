@@ -57,7 +57,7 @@ export default {
         },
         onReportLoginHistory() {
             this.$http
-                .post("/api/v1/w5/post/user/login_history", {
+                .post("/api/v1/soar/post/user/login_history", {
                     user_id: this.$cookies.get("user_id")
                 })
                 .then((res) => {

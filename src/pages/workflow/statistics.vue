@@ -194,7 +194,7 @@ export default {
         },
         onData() {
             this.$http
-                .post("/api/v1/w5/post/workflow/detail", {
+                .post("/api/v1/soar/post/workflow/detail", {
                     uuid: this.uuid
                 })
                 .then((res) => {
@@ -207,7 +207,7 @@ export default {
         },
         onLoadLogs() {
             this.$http
-                .post("/api/v1/w5/get/workflow/logs", {
+                .post("/api/v1/soar/get/workflow/logs", {
                     uuid: this.uuid
                 })
                 .then((res) => {
@@ -225,7 +225,7 @@ export default {
         },
         onLoadWorkflow() {
             this.$http
-                .post("/api/v1/w5/get/workflow/workflow", {
+                .post("/api/v1/soar/get/workflow/workflow", {
                     uuid: this.uuid
                 })
                 .then((res) => {
@@ -240,7 +240,7 @@ export default {
         },
         onLoadExec() {
             this.$http
-                .post("/api/v1/w5/get/workflow/exec", {
+                .post("/api/v1/soar/get/workflow/exec", {
                     uuid: this.uuid
                 })
                 .then((res) => {

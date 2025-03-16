@@ -72,7 +72,7 @@ export default {
     methods: {
         onGetUserNavList() {
             this.$http
-                .post("/api/v1/w5/get/user_nav/list", {
+                .post("/api/v1/soar/get/user_nav/list", {
                     user_id: this.$cookies.get("user_id"),
                 })
                 .then((res) => {

@@ -266,7 +266,7 @@ export default {
         onLoad(keywords = "", page = 1, page_count = 10) {
             this.loading = true;
             this.$http
-                .post("/api/v1/w5/get/timer/list", {
+                .post("/api/v1/soar/get/timer/list", {
                     keywords: keywords,
                     page: page,
                     page_count: page_count
@@ -286,7 +286,7 @@ export default {
             this.startPaueLoading = true;
 
             this.$http
-                .post("/api/v1/w5/post/timer/start_pause", {
+                .post("/api/v1/soar/post/timer/start_pause", {
                     uuid: uuid,
                     type: type
                 })

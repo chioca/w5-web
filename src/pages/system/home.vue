@@ -235,7 +235,7 @@ export default {
     methods: {
         onLoad() {
             this.$http
-                .post("/api/v1/w5/get/system/list")
+                .post("/api/v1/soar/get/system/list")
                 .then((res) => {
                     if (res.code == 0) {
                         this.data = res.data;
@@ -248,7 +248,7 @@ export default {
         },
         onGetPlacement() {
             this.$http
-                .post("/api/v1/w5/get/system/placement")
+                .post("/api/v1/soar/get/system/placement")
                 .then((res) => {
                     if (res.code == 0) {
                         this.logDivPlacement = res.data.placement;
@@ -259,7 +259,7 @@ export default {
         },
         del(type) {
             this.$http
-                .post("/api/v1/w5/post/system/del", {
+                .post("/api/v1/soar/post/system/del", {
                     type: type
                 })
                 .then((res) => {
@@ -272,7 +272,7 @@ export default {
         },
         onUpdateKey() {
             this.$http
-                .post("/api/v1/w5/post/system/w5key", {
+                .post("/api/v1/soar/post/system/w5key", {
                     w5key: this.w5_key
                 })
                 .then((res) => {
@@ -286,7 +286,7 @@ export default {
         },
         onUpdateApiKey() {
             this.$http
-                .post("/api/v1/w5/post/system/apikey")
+                .post("/api/v1/soar/post/system/apikey")
                 .then((res) => {
                     if (res.code == 0) {
                         this.$message.success("更新成功");
@@ -298,7 +298,7 @@ export default {
         },
         onLoadTag() {
             this.$http
-                .post("/api/v1/w5/get/type/list", {
+                .post("/api/v1/soar/get/type/list", {
                     type: 0
                 })
                 .then((res) => {
@@ -335,7 +335,7 @@ export default {
         },
         onDelTag() {
             this.$http
-                .post("/api/v1/w5/post/type/del", {
+                .post("/api/v1/soar/post/type/del", {
                     id: this.curr_update_id,
                     type: this.curr_type
                 })
@@ -351,7 +351,7 @@ export default {
         },
         onAddTag() {
             this.$http
-                .post("/api/v1/w5/post/type/add", {
+                .post("/api/v1/soar/post/type/add", {
                     type: this.curr_type,
                     name: this.tag_name,
                 })
@@ -367,7 +367,7 @@ export default {
         },
         onUpdateTag(e) {
             this.$http
-                .post("/api/v1/w5/post/type/update", {
+                .post("/api/v1/soar/post/type/update", {
                     id: this.curr_update_id,
                     type: this.curr_type,
                     name: this.tag_name,
@@ -386,7 +386,7 @@ export default {
             this.logDivPlacement = e.target.value;
 
             this.$http
-                .post("/api/v1/w5/post/system/placement", {
+                .post("/api/v1/soar/post/system/placement", {
                     placement: this.logDivPlacement,
                 })
                 .then((res) => {

@@ -2186,7 +2186,7 @@ export default {
                 that.onToPng(function (dataImgBase64) {
                     // 更新剧本信息
                     that.$http
-                        .post("/api/v1/w5/post/workflow/update", {
+                        .post("/api/v1/soar/post/workflow/update", {
                             uuid: that.uuid,
                             name: that.workflow_name,
                             remarks: that.work_remarks,
@@ -2280,7 +2280,7 @@ export default {
         onData() {
             // 加载剧本信息
             this.$http
-                .post("/api/v1/w5/post/workflow/detail", {
+                .post("/api/v1/soar/post/workflow/detail", {
                     uuid: this.uuid
                 })
                 .then((res) => {
@@ -2340,7 +2340,7 @@ export default {
         },
         onVariablenList() {
             this.$http
-                .post("/api/v1/w5/get/variablen/list", {
+                .post("/api/v1/soar/get/variablen/list", {
                     type: 0
                 })
                 .then((res) => {
@@ -2535,7 +2535,7 @@ export default {
         onAppList() {
             // 加载 APP 列表
             this.$http
-                .get("/api/v1/w5/get/app/list")
+                .get("/api/v1/soar/get/app/list")
                 .then((res) => {
                     if (res.code == 0) {
                         this.app_list = res.data;
@@ -3023,7 +3023,7 @@ export default {
         // 导出 PDF 报告
         onReportLog(only_id) {
             this.$http
-                .post("/api/v1/w5/get/report/log", {
+                .post("/api/v1/soar/get/report/log", {
                     only_id: only_id,
                 })
                 .then((res) => {
@@ -3240,7 +3240,7 @@ export default {
         },
         onSelectType() {
             this.$http
-                .post("/api/v1/w5/get/type/list", {
+                .post("/api/v1/soar/get/type/list", {
                     type: 1,
                 })
                 .then((res) => {
@@ -3253,7 +3253,7 @@ export default {
         },
         onGetPlacement() {
             this.$http
-                .post("/api/v1/w5/get/system/placement")
+                .post("/api/v1/soar/get/system/placement")
                 .then((res) => {
                     if (res.code == 0) {
                         this.logDivPlacement = res.data.placement;
@@ -3264,7 +3264,7 @@ export default {
         },
         onUserList() {
             this.$http
-                .post("/api/v1/w5/get/user/simple_list")
+                .post("/api/v1/soar/get/user/simple_list")
                 .then((res) => {
                     if (res.code == 0) {
                         this.user_list = res.data;

@@ -207,7 +207,7 @@ export default {
             up_email: "",
             up_app_dir: "",
             up_github: "",
-            upload_url: this.BaseURL + "/api/v1/w5/post/app/import",
+            upload_url: this.BaseURL + "/api/v1/soar/post/app/import",
             headers: {
                 token: this.$cookies.get("token"),
                 requestId: reqid.GetRequestId(),
@@ -244,7 +244,7 @@ export default {
             this.app_type_list = new Set();
 
             this.$http
-                .get("/api/v1/w5/get/app/list")
+                .get("/api/v1/soar/get/app/list")
                 .then((res) => {
                     if (res.code == 0) {
                         let xdata = res.data;
@@ -318,7 +318,7 @@ export default {
         },
         del(app_dir) {
             this.$http
-                .post("/api/v1/w5/post/app/del", {
+                .post("/api/v1/soar/post/app/del", {
                     app_dir: app_dir,
                 })
                 .then((res) => {
@@ -360,7 +360,7 @@ export default {
         },
         onLoadCloudApp() {
             this.$http
-                .post("/api/v1/w5/get/app/cloud_list")
+                .post("/api/v1/soar/get/app/cloud_list")
                 .then((res) => {
                     if (res.code == 0) {
                         this.cloud_app_list = res.data;
@@ -399,7 +399,7 @@ export default {
             }
 
             this.$http
-                .post("/api/v1/w5/post/app/upload", {
+                .post("/api/v1/soar/post/app/upload", {
                     wid: this.up_wid.trim(),
                     name: this.up_name,
                     type: this.up_type,
@@ -424,7 +424,7 @@ export default {
         },
         appDownload(wid, appDir, zipUrl) {
             this.$http
-                .post("/api/v1/w5/post/app/download", {
+                .post("/api/v1/soar/post/app/download", {
                     wid: wid,
                     zip_url: zipUrl,
                     app_dir: appDir,
@@ -441,7 +441,7 @@ export default {
         appGetInfo() {
             if (this.up_wid.trim() != "") {
                 this.$http
-                    .post("/api/v1/w5/get/app/cloud_info", {
+                    .post("/api/v1/soar/get/app/cloud_info", {
                         wid: this.up_wid.trim(),
                     })
                     .then((res) => {

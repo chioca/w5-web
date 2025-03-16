@@ -232,7 +232,7 @@ export default {
         onLoad(keywords = "", select_type = "all", page = 1, page_count = 10) {
             this.loading = true;
             this.$http
-                .post("/api/v1/w5/get/audit/list", {
+                .post("/api/v1/soar/get/audit/list", {
                     keywords: keywords,
                     type: select_type,
                     page: page,
@@ -267,7 +267,7 @@ export default {
         },
         onReportLog(only_id) {
             this.$http
-                .post("/api/v1/w5/get/report/log", {
+                .post("/api/v1/soar/get/report/log", {
                     only_id: only_id,
                 })
                 .then((res) => {
@@ -289,7 +289,7 @@ export default {
         },
         onAuditUpdate(status) {
             this.$http
-                .post("/api/v1/w5/post/audit/update", {
+                .post("/api/v1/soar/post/audit/update", {
                     id: this.id,
                     status: status,
                     user: this.$cookies.get("nick_name"),

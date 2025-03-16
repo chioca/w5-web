@@ -139,7 +139,7 @@ export default {
         },
         update_version(type = "0") {
             this.$http
-                .post("/api/v1/w5/get/system/version")
+                .post("/api/v1/soar/get/system/version")
                 .then((res) => {
                     if (res.code == 0) {
                         let data = res.data;

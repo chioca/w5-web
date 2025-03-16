@@ -222,28 +222,24 @@
                         消息通知
                     </div>
                     <a-card class="notificationCard" :style="notificationStyle">
-                        <div class="notification" v-for="(item, index) in notifications" :key="item.id">
-                            <div class="info">
-                                <div class="title">
-                                    <span>{{ item.time }}</span>
-                                    <a-icon type="close" class="delete-icon" @click="removeNotification(index)" />
-                                </div>
-                                <div class="notification-title">
-                                    <span>{{ item.title }}</span>
-                                </div>
-                                <div class="notification-content">
-                                    <div class="message">{{ item.message }}</div>
-                                </div>
-                                <div class="notification-status">
-                                    <span class="status-label">当前状态：</span>
-                                    <span class="status-tag" 
-                                          :class="item.status === '待处理' ? 'pending' : 'completed'"
-                                          @click="showNotificationDetail(item)"
-                                          style="cursor: pointer">
-                                        {{ item.status }}
-                                    </span>
+                        <div v-if="notifications.length > 0">
+                            <div class="notification" v-for="(item, index) in notifications" :key="item.id">
+                                <div class="info">
+                                    <div class="title">
+                                        <span>{{ item.time }}</span>
+                                        <a-icon type="close" class="delete-icon" @click="removeNotification(index)" />
+                                    </div>
+                                    <div class="notification-title">
+                                        <span>{{ item.title }}</span>
+                                    </div>
+                                    <div class="notification-content">
+                                        <div class="message">{{ item.message }}</div>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                        <div v-else>
+                            暂无告警信息
                         </div>
                     </a-card>
                 </a-col>
@@ -446,7 +442,7 @@ export default {
         },
         getUserInfo() {
             this.$http
-                .post("/api/v1/w5/get/user/info", {
+                .post("/api/v1/soar/get/user/info", {
                     id: this.$cookies.get("user_id")
                 })
                 .then((res) => {
@@ -464,7 +460,7 @@ export default {
         },
         onLoadSums() {
             this.$http
-                .post("/api/v1/w5/get/dashboard/sums")
+                .post("/api/v1/soar/get/dashboard/sums")
                 .then((res) => {
                     if (res.code == 0) {
                         this.sums_data = res.data;
@@ -475,15 +471,10 @@ export default {
         },
         onLoadLogs() {
             this.$http
-                .post("/api/v1/w5/get/dashboard/logs")
+                .post("/api/v1/soar/get/dashboard/logs")
                 .then((res) => {
                     if (res.code == 0) {
                         this.logs_data = res.data;
-
-                        // setTimeout(function () {
-                        //     var t = document.querySelector(".ant-table-body");
-                        //     t.scrollTop = t.scrollHeight;
-                        // }, 100);
                     } else {
                         this.$message.error(res.msg);
                     }
@@ -491,7 +482,7 @@ export default {
         },
         onLoadWorkflow() {
             this.$http
-                .post("/api/v1/w5/get/dashboard/workflow")
+                .post("/api/v1/soar/get/dashboard/workflow")
                 .then((res) => {
                     if (res.code == 0) {
                         this.workflow_data = res.data;
@@ -549,48 +540,63 @@ export default {
 
             // 获取执行数据
             this.$http
-                .post("/api/v1/w5/get/dashboard/exec", {
-                    type: type
-                })
+                .get(`/api/v1/soar/get/alert/message?type=${type}`)
                 .then((res) => {
                     if (res.code == 0) {
-                        this.exec_data = res.data;
-                        this.onLoadMain2();
+                        // 确保 exec_data 正确初始化
+                        if (res.data && Array.isArray(res.data.execData)) {
+                            this.exec_data = res.data.execData;
+                        } else {
+                            // 回退到空数组或默认数据结构
+                            this.exec_data = [];
+                            console.warn('执行数据格式不符合预期', res.data);
+                        }
+                        
+                        // 在调用图表渲染前确保数据已准备好
+                        this.$nextTick(() => {
+                            this.onLoadMain2();
+                        });
 
-                        // Also fetch alert data if you have an API endpoint for it
-                        this.fetchAlertData().then(alertsData => {
-                            // Map your notifications with alert info
-                            this.notifications = this.exec_data.map((item, index) => {
+                        // 处理告警信息
+                        if (res.data && Array.isArray(res.data.list)) {
+                            const alertList = res.data.list;
+                            this.notifications = alertList.map((alertInfo, index) => {
+                                // 确保每个字段都有默认值，防止undefined导致的渲染问题
                                 let color = "#52c41a"; 
                                 let icon = "check-circle"; 
 
-                                if (item.status === "警告") {
+                                if (alertInfo.severity === "中") {
                                     color = "#faad14";
                                     icon = "warning";
-                                } else if (item.status === "错误") {
+                                } else if (alertInfo.severity === "高") {
                                     color = "#f5222d";
                                     icon = "close-circle";
                                 }
 
-                                // Match with alert info if possible (this is just an example)
-                                const alertInfo = alertsData && alertsData.list && alertsData.list[index % alertsData.list.length];
-
                                 return {
+                                    id: index + 1,
+                                    time: alertInfo.create_time || '未知时间',
+                                    title: `告警: ${alertInfo.attack_type || '未知类型'}`,
+                                    message: `检测到${alertInfo.attack_type || '未知'}攻击，源IP: ${alertInfo.source_ip || 'N/A'}，目标IP: ${alertInfo.destination_ip || 'N/A'}`,
+                                    status: alertInfo.status === 0 ? '待处理' : '已处理',
+                                    link: `/workflow/${alertInfo.alert_id || 0}`,
+                                    workflowName: `${alertInfo.attack_type || '未知类型'}处理剧本`,
                                     icon: icon,
                                     color: color,
-                                    title: `剧本：${item.name}`,
-                                    description: `状态：${item.status}，执行时间：${item.time}`,
-                                    workflowName: item.name,
-                                    link: item.link,
-                                    status: index % 2 === 0 ? '待处理' : '已处理', // Example status alternation
-                                    message: `剧本执行${index % 2 === 0 ? '开始' : '完成'}，${alertInfo ? '对应告警ID: ' + alertInfo.alert_id : '无告警信息'}`,
-                                    alertInfo: alertInfo // Include the alert info
+                                    alertInfo: alertInfo // 保存完整的告警信息以便详情显示
                                 };
                             });
-                        });
+                        } else {
+                            this.notifications = []; 
+                            console.warn('告警列表格式不符合预期', res.data);
+                        }
                     } else {
-                        this.$message.error(res.msg);
+                        this.$message.error(res.msg || '获取数据失败');
                     }
+                })
+                .catch((error) => {
+                    console.error("Error fetching alert data:", error);
+                    this.$message.error('获取数据发生错误');
                 });
         },
         onLoadMain1() {
@@ -648,28 +654,39 @@ export default {
             if (this.areaPlot != "") {
                 this.areaPlot.destroy();
             }
+            
+            // 确保数据有效再初始化图表
+            if (!this.exec_data || this.exec_data.length === 0) {
+                console.warn('没有可用的执行数据来渲染图表');
+                // 可选：显示空状态或默认图表
+                return;
+            }
 
-            this.areaPlot = new Area('main2', {
-                data: this.exec_data,
-                xField: 'time',
-                yField: 'value',
-                xAxis: {
-                    range: [0, 1],
-                    tickCount: 5,
-                },
-                color: '#c63935',
-                smooth: true,
-                areaStyle: () => {
-                    return {
-                        fill: 'l(270) 0:#ffffff 0.5:#c63935 1:#c63935',
-                    };
-                },
-            });
-            this.areaPlot.render();
+            try {
+                this.areaPlot = new Area('main2', {
+                    data: this.exec_data,
+                    xField: 'time',
+                    yField: 'value',
+                    xAxis: {
+                        range: [0, 1],
+                        tickCount: 5,
+                    },
+                    color: '#c63935',
+                    smooth: true,
+                    areaStyle: () => {
+                        return {
+                            fill: 'l(270) 0:#ffffff 0.5:#c63935 1:#c63935',
+                        };
+                    },
+                });
+                this.areaPlot.render();
+            } catch (err) {
+                console.error('图表渲染失败:', err);
+            }
         },
         onW5Json(type = 0) {
             this.$http
-                .post("/api/v1/w5/get/system/w5json")
+                .post("/api/v1/soar/get/system/w5json")
                 .then((res) => {
                     if (res.code == 0) {
                         this.w5_json = res.data;
@@ -786,7 +803,7 @@ export default {
         },
         onLoginHistory() {
             this.$http
-                .post("/api/v1/w5/get/dashboard/login_history")
+                .post("/api/v1/soar/get/dashboard/login_history")
                 .then((res) => {
                     if (res.code == 0) {
                         this.login_history = res.data;
@@ -805,7 +822,7 @@ export default {
             });
         },
         showNotificationDetail(item) {
-            // Using $confirm instead of $modal.info since $modal is undefined
+            // 使用 $confirm 显示告警通知的详细信息
             this.$confirm({
                 title: '告警通知',
                 width: 700, // Make the modal wider to accommodate alert details
@@ -835,7 +852,7 @@ export default {
                                     h('p', [h('strong', '攻击类型: '), item.alertInfo.attack_type || '--']),
                                     h('p', [h('strong', '严重程度: '), 
                                         h('span', { style: { 
-                                            color: getSeverityColor(item.alertInfo.severity),
+                                            color: this.getSeverityColor(item.alertInfo.severity),
                                             fontWeight: 'bold'
                                         } }, item.alertInfo.severity || '--')
                                     ]),
@@ -857,7 +874,7 @@ export default {
                             ]),
                             h('p', [h('strong', '状态: '), 
                                 h('span', { style: { 
-                                    color: getStatusColor(item.alertInfo.status),
+                                    color: this.getStatusColor(item.alertInfo.status),
                                     fontWeight: 'bold'
                                 } }, item.alertInfo.status || '--')
                             ])
@@ -938,21 +955,21 @@ export default {
         },
         // Add a method to fetch alert data from your API
         fetchAlertData() {
-            return this.$http.post("/api/v1/alerts", {
-                // Add any required parameters for your API
-                page: 1,
-                size: 10
-            }).then(res => {
-                if (res.code == 0) {
-                    return res.data;
-                } else {
-                    this.$message.error("获取告警信息失败: " + res.msg);
+            return this.$http
+                .get("/api/v1/soar/get/alert/message", { page: 1, size: 10 })
+                .then((res) => {
+                    console.log("Alert Data Response:", res); // 检查 API 返回数据
+                    if (res.code == 0) {
+                        return res.data;
+                    } else {
+                        this.$message.error("获取告警信息失败: " + res.msg);
+                        return { list: [] };
+                    }
+                })
+                .catch((err) => {
+                    console.error("Failed to fetch alert data:", err); // 检查是否有网络或其他错误
                     return { list: [] };
-                }
-            }).catch(err => {
-                console.error("Failed to fetch alert data:", err);
-                return { list: [] };
-            });
+                });
         },
     },
     watch: {
