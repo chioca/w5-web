@@ -42,7 +42,7 @@ export default new Router({
         path: "/",
         name: "Login",
         component: Login,
-        meta: { requireAuth: trues }
+        meta: { requireAuth: false }
     },
     {
         path: "/dashboard",
