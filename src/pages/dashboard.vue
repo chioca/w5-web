@@ -224,17 +224,17 @@
                     <a-card class="notificationCard" :style="notificationStyle">
                         <div v-if="notifications.length > 0">
                             <div class="notification" v-for="(item, index) in notifications" :key="item.id">
-                                <div class="info">
-                                    <div class="title">
-                                        <span>{{ item.time }}</span>
-                                        <a-icon type="close" class="delete-icon" @click="removeNotification(index)" />
-                                    </div>
-                                    <div class="notification-title">
-                                        <span>{{ item.title }}</span>
-                                    </div>
-                                    <div class="notification-content">
-                                        <div class="message">{{ item.message }}</div>
-                                    </div>
+                                <div class="notification-time">{{ item.time }}</div>
+                                <div class="notification-content">
+                                    <span class="label">{{ item.title }}</span>
+                                    <span 
+                                        class="status-tag" 
+                                        :class="{'pending': item.status === '待处理', 'processed': item.status === '已处理'}"
+                                        @click="showNotificationDetail(item)"
+                                    >
+                                        {{ item.status }}
+                                    </span>
+                                    <a-icon type="close" class="close-icon" @click="removeNotification(index)" />
                                 </div>
                             </div>
                         </div>
@@ -576,7 +576,7 @@ export default {
                                 return {
                                     id: index + 1,
                                     time: alertInfo.create_time || '未知时间',
-                                    title: `告警: ${alertInfo.attack_type || '未知类型'}`,
+                                    title: `${alertInfo.attack_type || '未知类型'}`,
                                     message: `检测到${alertInfo.attack_type || '未知'}攻击，源IP: ${alertInfo.source_ip || 'N/A'}，目标IP: ${alertInfo.destination_ip || 'N/A'}`,
                                     status: alertInfo.status === 0 ? '待处理' : '已处理',
                                     link: `/workflow/${alertInfo.alert_id || 0}`,
@@ -811,13 +811,37 @@ export default {
                 });
         },
         removeNotification(index) {
+            const notification = this.notifications[index];
+            // Check if we have the alert ID from the alertInfo
+            const alertId = notification.alertInfo ? notification.alertInfo.alert_id : null;
+            
+            if (!alertId) {
+                this.$message.error('无法删除通知：缺少告警ID');
+                return;
+            }
+            
             this.$confirm({
                 title: '确认删除',
-                content: '是否确认删除该条通知？',
+                content: '是否确认删除该条通知？删除后将无法恢复。',
                 okText: '确认',
                 cancelText: '取消',
                 onOk: () => {
-                    this.notifications.splice(index, 1); // 删除指定通知
+                    // Call API to delete from database
+                    this.$http
+                        .post('/api/v1/soar/post/alert/del', { alert_id: alertId })
+                        .then((res) => {
+                            if (res.code === 0) {
+                                // Remove from frontend array after successful API call
+                                this.notifications.splice(index, 1);
+                                this.$message.success('删除成功');
+                            } else {
+                                this.$message.error('删除失败: ' + (res.msg || '未知错误'));
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('删除告警失败:', error);
+                            this.$message.error('删除告警时发生错误，请稍后重试');
+                        });
                 }
             });
         },
@@ -1184,25 +1208,51 @@ export default {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
         .notification {
-            &:not(:last-child) {
-                border-bottom: 1px solid #f0f0f0;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            
+            .notification-time {
+                font-size: 12px;
+                color: #8c8c8c;
+                margin-bottom: 5px;
             }
-
-            .info {
-                .title {
-                    color: #8c8c8c;
-                }
-
-                .notification-title {
+            
+            .notification-content {
+                display: flex;
+                align-items: center;
+                position: relative;
+                
+                .label {
+                    margin-right: 10px;
                     color: #262626;
                 }
-
-                .message {
-                    color: #595959;
+                
+                .status-tag {
+                    padding: 2px 10px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    
+                    &.pending {
+                        background-color: #ff4d4f;  // 更鲜明的红色
+                        color: white;
+                    }
+                    
+                    &.processed {
+                        background-color: #52c41a;  // 绿色
+                        color: white;
+                    }
                 }
-
-                .status-label {
-                    color: #8c8c8c;
+                
+                .close-icon {
+                    position: absolute;
+                    right: 0;
+                    cursor: pointer;
+                    color: #bfbfbf;
+                    
+                    &:hover {
+                        color: #595959;
+                    }
                 }
             }
         }
@@ -1378,25 +1428,51 @@ export default {
         border: 1px solid #303030;
 
         .notification {
-            &:not(:last-child) {
-                border-bottom: 1px solid #303030;
+            padding: 10px 0;
+            border-bottom: 1px solid #303030;
+            
+            .notification-time {
+                font-size: 12px;
+                color: #8b8b8b;
+                margin-bottom: 5px;
             }
-
-            .info {
-                .title {
-                    color: #8b8b8b;
-                }
-
-                .notification-title {
+            
+            .notification-content {
+                display: flex;
+                align-items: center;
+                position: relative;
+                
+                .label {
+                    margin-right: 10px;
                     color: #dbdbdb;
                 }
-
-                .message {
-                    color: #8b8b8b;
+                
+                .status-tag {
+                    padding: 2px 10px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    
+                    &.pending {
+                        background-color: #ff4d4f;  // 更鲜明的红色
+                        color: white;
+                    }
+                    
+                    &.processed {
+                        background-color: #52c41a;  // 绿色
+                        color: white;
+                    }
                 }
-
-                .status-label {
+                
+                .close-icon {
+                    position: absolute;
+                    right: 0;
+                    cursor: pointer;
                     color: #8b8b8b;
+                    
+                    &:hover {
+                        color: #fff;
+                    }
                 }
             }
         }
