@@ -7,10 +7,10 @@
         <div class="nav-item dropdown">
           网络攻击预警 <span class="arrow">▼</span>
           <div class="dropdown-content">
-            <div>网络攻击预警</div>
-            <div>脆弱性态势</div>
-            <div>威胁态势</div>
-            <div>安全运营态势</div>
+            <div @click="checkLogin('/network-alerts')">网络攻击预警</div>
+            <div @click="checkLogin('/vulnerability')">脆弱性态势</div>
+            <div @click="checkLogin('/threats')">威胁态势</div>
+            <div @click="checkLogin('/security-operations')">安全运营态势</div>
           </div>
         </div>
       </div>
@@ -25,11 +25,11 @@
       </div>
       
       <div class="nav-right">
-        <div class="nav-item" @click="goToSoar">安全编排</div>
-        <div class="nav-item">入侵检测</div>
-        <div class="nav-item">智能运营</div>
-        <div class="nav-item">系统管理</div>
-        <div class="user-icon">👤</div>
+        <div class="nav-item" @click="checkLogin('/dashboard')">安全编排</div>
+        <div class="nav-item" @click="checkLogin('/intrusion-detection')">入侵检测</div>
+        <div class="nav-item" @click="checkLogin('/intelligent-operations')">智能运营</div>
+        <div class="nav-item" @click="checkLogin('/system')">系统管理</div>
+        <div class="user-icon" @click="goToLogin">👤</div>
       </div>
     </header>
 
@@ -62,6 +62,7 @@
       <div class="center-panel">
         <div class="time-bar">
           <span>时间</span>
+          <div class="current-time">{{ currentTime }}</div>
           <div class="time-selector"></div>
         </div>
         <div class="map-area">
@@ -101,15 +102,61 @@ export default {
   components: {
     ChinaMap
   },
+  data() {
+    return {
+      currentTime: '',
+      timer: null
+    };
+  },
   created() {
     document.body.classList.add('home-page');
+    this.updateTime();
+    // 设置定时器，每秒更新一次时间
+    this.timer = setInterval(this.updateTime, 1000);
   },
   beforeDestroy() {
     document.body.classList.remove('home-page');
+    // 清除定时器
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   },
   methods: {
+    // 检查用户是否已登录
+    isLoggedIn() {
+      return this.$cookies && this.$cookies.isKey("token");
+    },
+    
+    // 检查登录状态并进行跳转
+    checkLogin(path) {
+      if (this.isLoggedIn()) {
+        this.$router.push(path);
+      } else {
+        this.goToLogin();
+      }
+    },
+    
+    // 直接跳转到安全编排页面（旧方法保留，但改为调用checkLogin）
     goToSoar() {
-      this.$router.push('/dashboard');
+      this.checkLogin('/dashboard');
+    },
+    
+    // 跳转到登录页面
+    goToLogin() {
+      this.$router.push('/login');
+    },
+
+    // 更新当前时间
+    updateTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      
+      this.currentTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
   }
 };
@@ -358,8 +405,16 @@ export default {
   gap: 20px;
 }
 
-.time-selector {
+.current-time {
+  color: #4db1ff;
+  font-size: 16px;
+  font-weight: 500;
   flex: 1;
+  text-align: center;
+}
+
+.time-selector {
+  width: 200px;
   height: 25px;
   background-color: #1e3c6e;
   border-radius: 5px;
