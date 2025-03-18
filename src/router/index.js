@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import IntrusionDetectionPage from '@/pages/intrusion-detection/index.vue'
 
 const Login = () =>
     import('@/pages/login')
@@ -122,6 +123,12 @@ export default new Router({
         path: "/403",
         name: "403",
         component: x403,
+        meta: { requireAuth: false }
+    },
+    {
+        path: '/intrusion-detection',
+        name: 'IntrusionDetection',
+        component: IntrusionDetectionPage,
         meta: { requireAuth: false }
     }
     ]
