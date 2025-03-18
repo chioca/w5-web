@@ -3,6 +3,8 @@ import Router from "vue-router";
 
 const Login = () =>
     import('@/pages/login')
+const HomePage = () =>
+    import('@/pages/home')
 const Dashboard = () =>
     import('@/pages/dashboard')
 const WorkflowHome = () =>
@@ -40,6 +42,12 @@ Vue.use(Router);
 export default new Router({
     routes: [{
         path: "/",
+        name: "Home",
+        component: HomePage,
+        meta: { requireAuth: false }
+    },
+    {
+        path: "/login",
         name: "Login",
         component: Login,
         meta: { requireAuth: false }
