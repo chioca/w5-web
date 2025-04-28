@@ -1,6 +1,6 @@
 <template>
 <a-layout-sider v-model="collapsed" :trigger="null" collapsible>
-    <div class="logos" v-if="collapsed">
+    <!-- <div class="logos" v-if="collapsed">
         <a-avatar class="logo_imgs" :src="baseURL + '/public/logo.png'" />
     </div>
     <div class="logo" v-else>
@@ -8,7 +8,7 @@
         <div class="ltxt">
             <span class="title">W5</span><span>SOAR</span>
         </div>
-    </div>
+    </div> -->
     <a-menu :theme="theme" mode="inline" :default-selected-keys="defaultSelectedKeys" :selectedKeys="selectedKeys" @click="click">
         <a-menu-item v-for="item in user_nav" :key="item.key" v-show="item.is_menu===1">
             <a-icon :type="item.icon" />

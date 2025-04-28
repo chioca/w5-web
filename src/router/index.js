@@ -43,12 +43,6 @@ Vue.use(Router);
 export default new Router({
     routes: [{
         path: "/",
-        name: "Home",
-        component: HomePage,
-        meta: { requireAuth: false }
-    },
-    {
-        path: "/login",
         name: "Login",
         component: Login,
         meta: { requireAuth: false }

@@ -154,69 +154,6 @@
         <a-col :span="4">
             <a-row :gutter="[16,16]">
                 <a-col :span="24">
-                    <a-card>
-                        <div class="user_avatar">
-                            <div>
-                                <div id="avatar" class="avatar" v-html="avatar"></div>
-                            </div>
-                            <div style="margin-top: 5px;">
-                                <span class="name">Hi,{{ nick_name }}!</span>
-                            </div>
-                        </div>
-                        <div class="user_tools">
-                            <a-space :size="14">
-                                <a-tooltip placement="bottom">
-                                    <template slot="title">
-                                        <span>帮助文档</span>
-                                    </template>
-                                    <a href="https://w5.io/help" target="_bank">
-                                        <a-icon type="question-circle" />
-                                    </a>
-                                </a-tooltip>
-
-                                <a-tooltip placement="bottom">
-                                    <template slot="title">
-                                        <span>Github</span>
-                                    </template>
-                                    <a href="https://github.com/w5hub/w5" target="_bank">
-                                        <a-icon type="github" theme="filled" />
-                                    </a>
-                                </a-tooltip>
-
-                                <a-tooltip placement="bottom">
-                                    <template slot="title">
-                                        <span>主题</span>
-                                    </template>
-                                    <a href="javascript:;" @click="setTheme('bright')" v-if="curr_theme == 'dark'">
-                                        <a-icon type="skin" theme="filled" />
-                                    </a>
-                                    <a href="javascript:;" @click="setTheme('dark')" v-else-if="curr_theme == 'bright'">
-                                        <a-icon type="skin" />
-                                    </a>
-                                </a-tooltip>
-
-                                <a-tooltip placement="bottom">
-                                    <template slot="title">
-                                        <span>检测更新</span>
-                                    </template>
-                                    <a href="javascript:;" @click="onW5Json(1)">
-                                        <a-icon type="sync" />
-                                    </a>
-                                </a-tooltip>
-
-                                <a-tooltip placement="bottom">
-                                    <template slot="title">
-                                        <span>退出</span>
-                                    </template>
-                                    <a href="javascript:;" @click="logout">
-                                        <a-icon type="logout" />
-                                    </a>
-                                </a-tooltip>
-                            </a-space>
-                        </div>
-                    </a-card>
-                </a-col>
-                <a-col :span="24">
                     <div class="notificationTitle" style="font-size: 14px; color: #dbdbdb;">
                         <a-icon type="bell" style="margin-right: 8px;" />
                         消息通知
