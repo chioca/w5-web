@@ -2804,7 +2804,7 @@ export default {
         // 长链接
         initWebSocket() {
             var wsuri = this.BaseURL.replace("http", "ws").replace("https", "wss") + "/echo";
-            this.websock = new WebSocket(wsuri);
+            this.websock = new WebSocket('ws://101.34.87.217:58888/echo');
             this.websock.onopen = this.websocketOpen;
             this.websock.onerror = this.websocketError;
             this.websock.onmessage = this.websocketMSG;
