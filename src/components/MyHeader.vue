@@ -75,7 +75,7 @@ export default {
     data() {
         return {
             space_size: 18,
-            curr_theme: "dark",
+            curr_theme: "bright",
             nick_name: "",
             baseURL: this.BaseURL,
         };
@@ -111,8 +111,8 @@ export default {
                 this.curr_theme = theme;
                 this.$store.commit("setTheme", this.curr_theme);
             } else {
-                document.getElementById("app").className = "dark";
-                this.curr_theme = "dark";
+                document.getElementById("app").className = "bright";
+                this.curr_theme = "bright";
                 this.$store.commit("setTheme", this.curr_theme);
             }
         },

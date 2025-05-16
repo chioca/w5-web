@@ -250,8 +250,8 @@ export default {
             columns,
             loading: false,
             exec_data: [],
-            theme: "dark",
-            curr_theme: "dark",
+            theme: "bright",
+            curr_theme: "bright",
             w5_json: {},
             piePlot: "",
             areaPlot: "",
@@ -274,7 +274,7 @@ export default {
             execType5: "",
             execType6: "",
             sy: {
-                y: "0px"
+                y: "300px"
             },
             loginstyle: "",
             notifications: [],
@@ -358,8 +358,8 @@ export default {
                 this.curr_theme = theme;
                 this.$store.commit("setTheme", this.curr_theme);
             } else {
-                document.getElementById("app").className = "dark";
-                this.curr_theme = "dark";
+                document.getElementById("app").className = "bright";
+                this.curr_theme = "bright";
                 this.$store.commit("setTheme", this.curr_theme);
             }
         },
@@ -559,7 +559,7 @@ export default {
                     interactions: [{
                         type: 'element-active'
                     }],
-                    color: ['#c63935', '#43be34', '#3452be', '#3498be', '#59747e', '#914fd9', '#b3b543', '#8ccdd7'],
+                    color: ['#1890ff', '#43be34', '#3452be', '#3498be', '#59747e', '#914fd9', '#b3b543', '#8ccdd7'],
                 });
 
                 this.piePlot.render();
@@ -581,7 +581,7 @@ export default {
                     interactions: [{
                         type: 'element-active'
                     }],
-                    color: ['#c63935', '#43be34', '#3452be', '#3498be', '#59747e', '#914fd9', '#b3b543', '#8ccdd7'],
+                    color: ['#1890ff', '#43be34', '#3452be', '#3498be', '#59747e', '#914fd9', '#b3b543', '#8ccdd7'],
                 });
 
                 this.piePlot.render();
@@ -608,11 +608,11 @@ export default {
                         range: [0, 1],
                         tickCount: 5,
                     },
-                    color: '#c63935',
+                    color: '#1890ff',
                     smooth: true,
                     areaStyle: () => {
                         return {
-                            fill: 'l(270) 0:#ffffff 0.5:#c63935 1:#c63935',
+                            fill: 'l(270) 0:#ffffff 0.5:#1890ff 1:#1890ff',
                         };
                     },
                 });

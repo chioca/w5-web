@@ -45,7 +45,7 @@ export default {
             baseURL: this.BaseURL,
             defaultSelectedKeys: ["Dashboard"],
             selectedKeys: [],
-            theme: "dark",
+            theme: "light",
             user_nav: [],
             nav_auth_list: ""
         };
@@ -95,8 +95,8 @@ export default {
                 this.curr_theme = theme;
                 this.$store.commit("setTheme", this.curr_theme);
             } else {
-                document.getElementById("app").className = "dark";
-                this.curr_theme = "dark";
+                document.getElementById("app").className = "bright";
+                this.curr_theme = "bright";
                 this.$store.commit("setTheme", this.curr_theme);
             }
         },
@@ -196,7 +196,7 @@ export default {
             margin-top: 5px;
 
             .title {
-                color: #e32b26;
+                color: #1890ff;
                 margin-right: 5px;
             }
         }
@@ -322,7 +322,7 @@ export default {
     text-align: center;
     width: 100%;
     font-size: 16px;
-    background: #c63935;
+    background: #1890ff;
     padding: 10px;
     cursor: pointer;
 }

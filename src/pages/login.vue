@@ -67,7 +67,7 @@ export default {
         return {
             form: this.$form.createForm(this),
             loading: false,
-            curr_theme: "dark",
+            curr_theme: "bright",
             baseURL: this.BaseURL,
         };
     },
@@ -83,8 +83,8 @@ export default {
                 document.getElementById("app").className = theme;
                 this.curr_theme = theme;
             } else {
-                document.getElementById("app").className = "dark";
-                this.curr_theme = "dark";
+                document.getElementById("app").className = "bright";
+                this.curr_theme = "bright";
             }
         },
         login(e) {

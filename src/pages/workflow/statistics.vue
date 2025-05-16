@@ -173,11 +173,21 @@ export default {
             logs_data: [],
             columns,
             loading: false,
-            theme: "dark",
+            theme: "bright",
             workflow_data: "",
-            exec_data: "",
+            exec_data: {},
             workflow_info: "",
-            workflow_exec_sum: 0
+            workflow_exec_sum: 0,
+            execType1: "active",
+            execType2: "",
+            execType3: "",
+            execType4: "",
+            execType5: "",
+            execType6: "",
+            piePlot: null,
+            areaPlog: null,
+            columnPlot: null,
+            w5_json: {}
         };
     },
     mounted() {

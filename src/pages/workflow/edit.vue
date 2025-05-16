@@ -82,7 +82,7 @@
         </a-col>
         <a-col flex="auto" class="right_auto" id="right_auto">
             <a-page-header style="pointer-events: none;" class="subtitle">
-                <a-tag style="pointer-events: auto;" color="#bf423d">
+                <a-tag style="pointer-events: auto;" color="#1890ff">
                     <div v-for="(item,index) in type_data" :key="index">
                         <span v-if="item.id==select_type">{{item.name}}</span>
                     </div>
@@ -212,8 +212,8 @@
                                     <span style="background: #606060;width: 15px;height: 15px;display: inline-block;margin-bottom: -2px;border-radius: 3px;"></span>
                                     黑色
                                 </a-radio-button>
-                                <a-radio-button value="#c7342e">
-                                    <span style="background: #c7342e;width: 15px;height: 15px;display: inline-block;margin-bottom: -2px;border-radius: 3px;"></span>
+                                <a-radio-button value="#1890ff">
+                                    <span style="background: #1890ff;width: 15px;height: 15px;display: inline-block;margin-bottom: -2px;border-radius: 3px;"></span>
                                     红色
                                 </a-radio-button>
                                 <a-radio-button value="#5961dd">
@@ -1255,7 +1255,7 @@ export default {
             appListStyle: "",
             addonDnd: null,
             menuList: "",
-            curr_theme: "dark",
+            curr_theme: "bright",
             visible_var_list: false,
             variablenList: [],
             node_list: null,
@@ -1319,8 +1319,8 @@ export default {
                 this.curr_theme = theme;
                 this.$store.commit("setTheme", this.curr_theme);
             } else {
-                document.getElementById("app").className = "dark";
-                this.curr_theme = "dark";
+                document.getElementById("app").className = "bright";
+                this.curr_theme = "bright";
                 this.$store.commit("setTheme", this.curr_theme);
             }
         },
@@ -1524,7 +1524,7 @@ export default {
 
             if (theme === "dark") {
                 this.grid_type = "dot";
-                this.edge_color = "#c7342e";
+                this.edge_color = "#1890ff";
                 this.edge_marker = "block";
                 this.edge_connector = "normal";
                 this.edge_router = "metro";
@@ -1533,7 +1533,7 @@ export default {
                 this.groups_color = "#787878";
             } else {
                 this.grid_type = "dot";
-                this.edge_color = "#c7342e";
+                this.edge_color = "#1890ff";
                 this.edge_marker = "block";
                 this.edge_connector = "normal";
                 this.edge_router = "metro";
@@ -3578,7 +3578,7 @@ export default {
         width: 24px;
         position: absolute;
         top: 50%;
-        background: #bf423e;
+        background: #1890ff;
         text-align: center;
         z-index: 999;
         margin-left: 320px;
@@ -3663,7 +3663,7 @@ export default {
 
             .run {
                 margin-top: -1px;
-                background: #bf423d;
+                background: #1890ff;
                 text-align: center;
                 line-height: 52px;
                 width: 48px;
@@ -3693,12 +3693,12 @@ export default {
         }
 
         /deep/ .x6-widget-minimap-viewport {
-            border: 2px solid #c63835;
+            border: 2px solid #1890ff;
         }
 
         /deep/ .x6-widget-minimap-viewport-zoom {
             background-color: #fff;
-            border: 2px solid #c63835;
+            border: 2px solid #1890ff;
         }
 
         /deep/.x6-widget-minimap .x6-graph {
@@ -3877,7 +3877,7 @@ export default {
         width: 24px;
         position: absolute;
         top: 50%;
-        background: #bf423e;
+        background: #1890ff;
         text-align: center;
         z-index: 999;
         margin-left: 320px;
@@ -3962,7 +3962,7 @@ export default {
 
             .run {
                 margin-top: -1px;
-                background: #bf423d;
+                background: #1890ff;
                 text-align: center;
                 line-height: 52px;
                 width: 48px;
@@ -3992,12 +3992,12 @@ export default {
         }
 
         /deep/ .x6-widget-minimap-viewport {
-            border: 2px solid #c63835;
+            border: 2px solid #1890ff;
         }
 
         /deep/ .x6-widget-minimap-viewport-zoom {
             background-color: #fff;
-            border: 2px solid #c63835;
+            border: 2px solid #1890ff;
         }
 
         /deep/.x6-widget-minimap .x6-graph {
@@ -4173,28 +4173,28 @@ export default {
 
 .ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
     color: #fff;
-    background: #403d3d;
-    border-color: #403d3d;
-    -webkit-box-shadow: -1px 0 0 0 #403d3d;
-    box-shadow: -1px 0 0 0 #403d3d;
+    background: #1890ff;
+    border-color: #1890ff;
+    -webkit-box-shadow: -1px 0 0 0 #1890ff;
+    box-shadow: -1px 0 0 0 #1890ff;
 }
 
 .ant-radio-button-wrapper:hover {
     position: relative;
-    color: #bf423d;
+    color: #1890ff;
 }
 
 /deep/ .ant-progress-status-success .ant-progress-bg {
-    background-color: #bf423d;
+    background-color: #1890ff;
 }
 
 /deep/ .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
     z-index: 1;
-    color: #bf423d;
+    color: #1890ff;
     background: #fff;
-    border-color: #bf423d;
-    -webkit-box-shadow: -1px 0 0 0 #bf423d;
-    box-shadow: -1px 0 0 0 #bf423d;
+    border-color: #1890ff;
+    -webkit-box-shadow: -1px 0 0 0 #1890ff;
+    box-shadow: -1px 0 0 0 #1890ff;
 }
 
 /deep/.w5NodeNote::-webkit-scrollbar {
