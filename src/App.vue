@@ -1,15 +1,17 @@
 <template>
-<div id="app">
-    <a-layout class="layout" v-if="is_login == false">
+  <a-config-provider :getPopupContainer="getPopupContainer">
+    <div id="app">
+      <a-layout class="layout" v-if="is_login == false">
         <my-nav />
         <a-layout>
-            <router-view />
+          <router-vizw />
         </a-layout>
-    </a-layout>
-    <a-layout class="layout" v-else>
+      </a-layout>
+      <a-layout class="layout" v-else>
         <router-view />
-    </a-layout>
-</div>
+      </a-layout>
+    </div>
+  </a-config-provider>
 </template>
 
 <script>
@@ -29,44 +31,49 @@ export default {
         this.boolPage();
     },
     methods: {
-        boolPage() {
-            var key = this.$router.history.current.name;
-            if (key == "Login") {
-                if (this.isToken() == true) {
-                    this.is_login = true;
-                } else {
-                    this.is_login = false;
-                }
-            } else {
-                if (this.isToken() == true) {
-                    this.is_login = true;
-                } else {
-                    this.is_login = false;
-                }
-            }
-        },
-        isToken() {
-            var isToken = $cookies.isKey("token");
-
-            if (isToken) {
-                this.onReportLoginHistory();
-                return false;
-            } else {
-                return true;
-            }
-        },
-        onReportLoginHistory() {
-            this.$http
-                .post("/api/v1/soar/post/user/login_history", {
-                    user_id: this.$cookies.get("user_id")
-                })
-                .then((res) => {
-                    if (res.code == 0) {} else {
-                        this.$message.error(res.msg);
-                    }
-                });
-        },
+    // 新增：全局浮层容器指定为当前 trigger 的父节点，防止 undefined
+    getPopupContainer(triggerNode) {
+      // 兼容处理，如果没有 triggerNode，兜底返回 app 节点
+      return triggerNode && triggerNode.parentNode ? triggerNode.parentNode : document.getElementById('app');
     },
+    boolPage() {
+      var key = this.$router.history.current.name;
+      if (key == "Login") {
+        if (this.isToken() == true) {
+          this.is_login = true;
+        } else {
+          this.is_login = false;
+        }
+      } else {
+        if (this.isToken() == true) {
+          this.is_login = true;
+        } else {
+          this.is_login = false;
+        }
+      }
+    },
+    isToken() {
+      var isToken = $cookies.isKey("token");
+      if (isToken) {
+        this.onReportLoginHistory();
+        return false;
+      } else {
+        return true;
+      }
+    },
+    onReportLoginHistory() {
+      this.$http
+        .post("/api/v1/soar/post/user/login_history", {
+          user_id: this.$cookies.get("user_id"),
+        })
+        .then((res) => {
+          if (res.code == 0) {
+          } else {
+            this.$message.error(res.msg);
+          }
+        });
+    },
+  },
     watch: {
         $route(to, from) {
             if (to.path === "/system") {
