@@ -2803,8 +2803,11 @@ export default {
         },
         // 长链接
         initWebSocket() {
-            var wsuri = this.BaseURL.replace("http", "ws").replace("https", "wss") + "/echo";
-            this.websock = new WebSocket('ws://101.34.87.217:58888/echo');
+            let wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            let wsBase = wsProtocol + "//" + window.location.host;
+            // 路径必须和 nginx 代理配置一致，假如 /sub/ 代理 websocket
+            let wsuri = wsBase + "/sub/echo";
+            this.websock = new WebSocket(wsuri);
             this.websock.onopen = this.websocketOpen;
             this.websock.onerror = this.websocketError;
             this.websock.onmessage = this.websocketMSG;
