@@ -2117,8 +2117,12 @@ export default {
                 }
 
                 let select_tools = String(e.node.id) + "&tools";
-                document.getElementById("container").getElementsByClassName(select_tools)[0].style.visibility = "inherit";
-                document.getElementById("minimapContainer").getElementsByClassName(select_tools)[0].style.visibility = "inherit";
+                // document.getElementById("container").getElementsByClassName(select_tools)[0].style.visibility = "inherit";
+                let toolsElem = document.getElementById("container").getElementsByClassName(select_tools)[0];
+                if (toolsElem) toolsElem.style.visibility = "inherit";
+                // document.getElementById("minimapContainer").getElementsByClassName(select_tools)[0].style.visibility = "inherit";
+                let toolsMiniElem = document.getElementById("minimapContainer").getElementsByClassName(select_tools)[0];
+                if (toolsMiniElem) toolsMiniElem.style.visibility = "inherit";
             })
 
             that.graph.on('node:mouseleave', (e) => {
