@@ -12,7 +12,11 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {  // 假设 API 前缀是 /api
-        target: 'http://localhost:8889',  // 后端服务地址
+        target: 'http://101.34.87.217:58888',  // 后端服务地址
+        changeOrigin: true,
+      },
+      'app': {
+        target: 'http://101.34.87.217:58888',  // 后端服务地址
         changeOrigin: true,
       }
     },
@@ -25,7 +29,7 @@ module.exports = {
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
+
     /**
      * Source Maps
      */

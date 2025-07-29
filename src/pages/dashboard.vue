@@ -783,31 +783,75 @@ export default {
             });
         },
         showNotificationDetail(item) {
-            // 使用 $confirm 显示告警通知的详细信息
+            // 首先检查是否有alert_id
+            const alertId = item.alertInfo && item.alertInfo.alert_id;
+            
+            if (!alertId) {
+                this.$message.error('无法获取告警ID');
+                return;
+            }
+
+            // 先调用analysis接口检查数据
+            this.$http.get(`/api/v1/soar/get/analysis/message?alert_id=${alertId}`)
+            .then((analysisRes) => {
+                // 检查analysis接口返回的数据是否为空
+                const hasAnalysisData = analysisRes.code === 0 && 
+                                       analysisRes.data && 
+                                       analysisRes.data.list && 
+                                       analysisRes.data.list.length > 0;
+
+                if (hasAnalysisData) {
+                    // 如果有分析数据，直接使用analysis数据渲染
+                    const analysisData = analysisRes.data.list[0];
+                    this.renderNotificationModal(item, { analysis: analysisData, decision: null });
+                } else {
+                    // 如果analysis数据为空，调用decision接口
+                    this.$http.post('/api/v1/decision/alert/decision', { alert_id: alertId })
+                    .then((decisionRes) => {
+                        const decisionData = decisionRes.code === 200 ? decisionRes.data : null;
+                        this.renderNotificationModal(item, { analysis: null, decision: decisionData });
+                    })
+                    .catch((error) => {
+                        console.error('获取决策信息失败:', error);
+                        this.renderNotificationModal(item, { analysis: null, decision: null, error: '获取决策信息失败' });
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error('获取分析消息失败:', error);
+                this.renderNotificationModal(item, { analysis: null, decision: null, error: '获取分析消息失败' });
+            });
+        },
+
+        renderNotificationModal(item, data) {
+            const { analysis, decision, error } = data;
+            
             this.$confirm({
-                title: '告警通知',
-                width: 700, // Make the modal wider to accommodate alert details
+                title: '告警通知详情',
+                width: 900,
                 content: h => {
-                    // Check if alert info exists
                     const hasAlertInfo = item.alertInfo && typeof item.alertInfo === 'object';
                     
                     return h('div', [
-                        // Basic notification info
-                        h('p', [
-                            h('span', { style: { fontWeight: 'bold' } }, '通知标题: '),
-                            item.title
-                        ]),
-                        h('p', [
-                            h('span', { style: { fontWeight: 'bold' } }, '消息内容: '),
-                            h('br'),
-                            h('div', { style: { margin: '10px 0', padding: '10px', border: '1px solid #f0f0f0', borderRadius: '4px' } }, item.message)
+                        // 基本通知信息
+                        h('div', { style: { marginBottom: '20px' } }, [
+                            h('h3', { style: { marginBottom: '10px', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px' } }, '基本信息'),
+                            h('p', [
+                                h('span', { style: { fontWeight: 'bold' } }, '通知标题: '),
+                                item.title
+                            ]),
+                            h('p', [
+                                h('span', { style: { fontWeight: 'bold' } }, '消息内容: '),
+                                h('br'),
+                                h('div', { style: { margin: '10px 0', padding: '10px', border: '1px solid #f0f0f0', borderRadius: '4px' } }, item.message)
+                            ])
                         ]),
                         
-                        // Alert information section (if available)
-                        hasAlertInfo ? h('div', [
-                            h('h3', { style: { marginTop: '20px', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px' } }, '告警详情'),
-                            h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '10px' } }, [
-                                // First column
+                        // 告警详情（原有信息）
+                        hasAlertInfo ? h('div', { style: { marginBottom: '20px' } }, [
+                            h('h3', { style: { marginBottom: '10px', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px' } }, '告警详情'),
+                            h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' } }, [
+                                // 第一列
                                 h('div', [
                                     h('p', [h('strong', '告警ID: '), item.alertInfo.alert_id || '--']),
                                     h('p', [h('strong', '攻击类型: '), item.alertInfo.attack_type || '--']),
@@ -820,7 +864,7 @@ export default {
                                     h('p', [h('strong', '协议: '), item.alertInfo.protocol || '--']),
                                     h('p', [h('strong', '检测系统: '), item.alertInfo.detection_system || '--']),
                                 ]),
-                                // Second column
+                                // 第二列  
                                 h('div', [
                                     h('p', [h('strong', '源IP: '), item.alertInfo.source_ip || '--']),
                                     h('p', [h('strong', '源端口: '), item.alertInfo.source_port || '--']),
@@ -831,54 +875,101 @@ export default {
                             ]),
                             h('p', { style: { marginTop: '10px' } }, [
                                 h('strong', '特征: '), 
-                                h('div', { style: { padding: '8px', background: '#f9f9f9', borderRadius: '4px', marginTop: '4px' } }, item.alertInfo.signature || '--')
-                            ]),
-                            h('p', [h('strong', '状态: '), 
-                                h('span', { style: { 
-                                    color: this.getStatusColor(item.alertInfo.status),
-                                    fontWeight: 'bold'
-                                } }, item.alertInfo.status || '--')
+                                h('div', { style: { padding: '8px', background: '#f9f9f9', borderRadius: '4px', marginTop: '4px' } }, 
+                                    item.alertInfo.signature || '--')
+                            ])
+                        ]) : null,
+
+                        // 决策分析结果（优先使用decision数据，其次使用analysis数据）
+                        (decision || analysis) ? h('div', { style: { marginBottom: '20px' } }, [
+                            h('h3', { style: { marginBottom: '10px', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px' } }, '决策分析'),
+                            h('div', { style: { padding: '12px', background: '#e6f7ff', border: '1px solid #91d5ff', borderRadius: '4px' } }, [
+                                // 显示自然语言决策（decision优先，否则使用analysis的notes）
+                                (decision && decision.natural_language_decision) || (analysis && analysis.notes) ? 
+                                h('div', { style: { marginBottom: '12px' } }, [
+                                    h('strong', '决策说明: '),
+                                    h('div', { 
+                                        style: { 
+                                            marginTop: '4px', 
+                                            padding: '8px', 
+                                            background: '#fff', 
+                                            borderRadius: '4px',
+                                            whiteSpace: 'pre-line',
+                                            maxHeight: '200px',
+                                            overflowY: 'auto'
+                                        } 
+                                    }, (decision && decision.natural_language_decision) || (analysis && analysis.notes) || '暂无说明')
+                                ]) : null,
+                                
+                                // 显示处理流程（简化版本）
+                                (decision && decision.structured_decision) || (analysis && analysis.recommended_actions) ? 
+                                h('div', [
+                                    h('strong', '处理流程: '),
+                                    h('div', { 
+                                        style: { 
+                                            marginTop: '8px', 
+                                            padding: '12px', 
+                                            background: '#fff', 
+                                            borderRadius: '4px',
+                                            fontFamily: 'monospace',
+                                            fontSize: '12px'
+                                        } 
+                                    }, (decision && decision.structured_decision) || (analysis && analysis.recommended_actions))
+                                ]) : null
+                            ])
+                        ]) : null,
+
+                        // 错误信息显示
+                        error ? h('div', { style: { marginBottom: '20px' } }, [
+                            h('div', { style: { padding: '12px', background: '#fff2f0', border: '1px solid #ffccc7', borderRadius: '4px' } }, [
+                                h('p', { style: { color: '#ff4d4f', margin: 0 } }, error)
                             ])
                         ]) : null,
                         
-                        // Workflow/Processing info
-                        h('p', { style: { marginTop: '15px' } }, [
-                            h('span', { style: { fontWeight: 'bold' } }, '处理: '),
-                            item.status === '待处理' ? 
-                            [
-                                h('a', {
-                                    style: {
-                                        color: '#1890ff'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.$router.push(item.link);
-                                            this.$confirm.destroy();
+                        // 处理信息
+                        h('div', [
+                            h('h3', { style: { marginBottom: '10px', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px' } }, '处理状态'),
+                            h('p', [
+                                h('span', { style: { fontWeight: 'bold' } }, '当前状态: '),
+                                h('span', { style: { 
+                                    color: item.status === '待处理' ? '#ff4d4f' : '#52c41a',
+                                    fontWeight: 'bold'
+                                } }, item.status)
+                            ]),
+                            h('p', [
+                                h('span', { style: { fontWeight: 'bold' } }, '处理: '),
+                                item.status === '待处理' ? 
+                                [
+                                    h('a', {
+                                        style: { color: '#1890ff' },
+                                        on: {
+                                            click: () => {
+                                                this.$router.push(item.link);
+                                                this.$confirm.destroy();
+                                            }
                                         }
-                                    }
-                                }, `已生成剧本${item.workflowName}（点击跳转）`),
-                                '，可审计'
-                            ] : 
-                            [
-                                h('a', {
-                                    style: {
-                                        color: '#1890ff'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.$router.push(item.link);
-                                            this.$confirm.destroy();
+                                    }, `已生成剧本${item.workflowName}（点击跳转）`),
+                                    '，可审计'
+                                ] : 
+                                [
+                                    h('a', {
+                                        style: { color: '#1890ff' },
+                                        on: {
+                                            click: () => {
+                                                this.$router.push(item.link);
+                                                this.$confirm.destroy();
+                                            }
                                         }
-                                    }
-                                }, `已生成剧本${item.workflowName}（点击跳转）`),
-                                '，已处理'
-                            ]
+                                    }, `已生成剧本${item.workflowName}（点击跳转）`),
+                                    '，已处理'
+                                ]
+                            ])
                         ])
                     ]);
                 },
                 okText: '关闭',
-                cancelButtonProps: { style: { display: 'none' } }, // Hide cancel button
-                icon: 'info-circle',
+                cancelButtonProps: { style: { display: 'none' } },
+                icon: error ? 'exclamation-circle' : 'info-circle',
                 okType: 'default'
             });
         },
