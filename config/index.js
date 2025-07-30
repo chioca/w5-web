@@ -16,7 +16,7 @@ module.exports = {
         changeOrigin: true,
       },
       '/app': {
-        target: 'http://101.34.87.217:58888/app/',  // 后端服务地址
+        target: 'http://101.34.87.217:58888',  // 后端服务地址
         changeOrigin: true,
       }
     },

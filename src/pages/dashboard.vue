@@ -301,7 +301,6 @@ export default {
     methods: {
         onLoad() {
             this.theme = this.$cookies.get("theme");
-            this.onLoadExec_cnt(1);
             this.onLoadSums();
             this.onLoadLogs();
             this.onLoadWorkflow();
@@ -312,6 +311,8 @@ export default {
             this.getClientHeight();
             this.getFromTime();
             this.onLoginHistory();
+            this.onLoadExec_cnt(1);
+
         },
         getFromTime(time) {
             require('dayjs/locale/zh')
@@ -575,7 +576,7 @@ export default {
                                     time: alertInfo.create_time || '未知时间',
                                     title: `${alertInfo.attack_type || '未知类型'}`,
                                     message: `检测到${alertInfo.attack_type || '未知'}攻击，源IP: ${alertInfo.source_ip || 'N/A'}，目标IP: ${alertInfo.destination_ip || 'N/A'}`,
-                                    status: alertInfo.status === 0 ? '待处理' : '已处理',
+                                    status: alertInfo.is_processed === 0 ? '待处理' : '已处理',
                                     link: `/workflow/${alertInfo.alert_id || 0}`,
                                     workflowName: `${alertInfo.attack_type || '未知类型'}处理剧本`,
                                     icon: icon,
@@ -851,40 +852,46 @@ export default {
                 return;
             }
 
-            // 先调用analysis接口检查数据
-            this.$http.get(`/api/v1/soar/get/analysis/message?alert_id=${alertId}`)
-            .then((analysisRes) => {
-                // 检查analysis接口返回的数据是否为空
-                const hasAnalysisData = analysisRes.code === 0 && 
-                                       analysisRes.data && 
-                                       analysisRes.data.list && 
-                                       analysisRes.data.list.length > 0;
-
-                if (hasAnalysisData) {
-                    // 如果有分析数据，直接使用analysis数据渲染
-                    const analysisData = analysisRes.data.list[0];
-                    this.renderNotificationModal(item, { analysis: analysisData, decision: null });
-                } else {
-                    // 如果analysis数据为空，调用decision接口
-                    this.$http.post('/api/v1/decision/alert/decision', { alert_id: alertId })
-                    .then((decisionRes) => {
-                        const decisionData = decisionRes.code === 200 ? decisionRes.data : null;
-                        this.renderNotificationModal(item, { analysis: null, decision: decisionData });
-                    })
-                    .catch((error) => {
-                        console.error('获取决策信息失败:', error);
-                        this.renderNotificationModal(item, { analysis: null, decision: null, error: '获取决策信息失败' });
+            if (item.alertInfo.is_decided === 1) {
+                // 如果已决策，直接调用analysis接口
+                this.$http.get(`/api/v1/soar/get/analysis/message?alert_id=${alertId}`)
+                .then((analysisRes) => {
+                    this.renderNotificationModal(item, { analysis: analysisRes.data, decision: null });
+                })
+                .catch((error) => {
+                    console.error('获取分析信息失败:', error);
+                    this.renderNotificationModal(item, { analysis: null, decision: null, error: '获取分析信息失败' });
+                });
+            } else {
+                // 如果未决策，先调用decision接口，再调用analysis接口
+                this.$http.post('/api/v1/decision/alert/decision', { alert_id: alertId })
+                .then((decisionRes) => {
+                    const decisionData = decisionRes.code === 200 ? decisionRes.data : null;
+                    
+                    // 调用decision接口后，再调用analysis接口
+                    return this.$http.get(`/api/v1/soar/get/analysis/message?alert_id=${alertId}`)
+                    .then((analysisRes) => {
+                        this.renderNotificationModal(item, { analysis: analysisRes.data, decision: decisionData });
                     });
-                }
-            })
-            .catch((error) => {
-                console.error('获取分析消息失败:', error);
-                this.renderNotificationModal(item, { analysis: null, decision: null, error: '获取分析消息失败' });
-            });
+                })
+                .catch((error) => {
+                    console.error('获取决策或分析信息失败:', error);
+                    this.renderNotificationModal(item, { analysis: null, decision: null, error: '获取决策或分析信息失败' });
+                });
+            }
+            
         },
 
         renderNotificationModal(item, data) {
             const { analysis, decision, error } = data;
+            
+            // 从analysis数据中获取analysis_id用于跳转
+            const analysisId = analysis && analysis.list && analysis.list.length > 0 && analysis.list[0].analysis_id 
+                ? analysis.list[0].analysis_id 
+                : (item.alertInfo && item.alertInfo.analysis_id);
+            
+            // 获取analysis数据中的第一条记录
+            const analysisData = analysis && analysis.list && analysis.list.length > 0 ? analysis.list[0] : null;
             
             this.$confirm({
                 title: '告警通知详情',
@@ -941,11 +948,11 @@ export default {
                         ]) : null,
 
                         // 决策分析结果（优先使用decision数据，其次使用analysis数据）
-                        (decision || analysis) ? h('div', { style: { marginBottom: '20px' } }, [
-                            h('h3', { style: { marginBottom: '10px', borderBottom: '1px solid #f0f0f0', paddingBottom: '8px' } }, '决策分析'),
-                            h('div', { style: { padding: '12px', background: '#e6f7ff', border: '1px solid #91d5ff', borderRadius: '4px' } }, [
+                        (decision || analysisData) ? h('div', { style: { marginBottom: '20px' } }, [
+                            h('h3', { style: { marginBottom: '10px', borderBottom: '1px solid #ffff', paddingBottom: '8px' } }, '决策分析'),
+                            h('div', { style: { padding: '12px', background: '#ffff', border: '1px solid #91d5ff', borderRadius: '4px' } }, [
                                 // 显示自然语言决策（decision优先，否则使用analysis的notes）
-                                (decision && decision.natural_language_decision) || (analysis && analysis.notes) ? 
+                                (decision && decision.natural_language_decision) || (analysisData && analysisData.notes) ? 
                                 h('div', { style: { marginBottom: '12px' } }, [
                                     h('strong', '决策说明: '),
                                     h('div', { 
@@ -955,26 +962,17 @@ export default {
                                             background: '#fff', 
                                             borderRadius: '4px',
                                             whiteSpace: 'pre-line',
-                                            maxHeight: '200px',
-                                            overflowY: 'auto'
+                                            // maxHeight: '200px',
+                                            // overflowY: 'auto'
                                         } 
-                                    }, (decision && decision.natural_language_decision) || (analysis && analysis.notes) || '暂无说明')
+                                    }, (decision && decision.natural_language_decision) || (analysisData && analysisData.notes) || '暂无说明')
                                 ]) : null,
                                 
-                                // 显示处理流程（简化版本）
-                                (decision && decision.structured_decision) || (analysis && analysis.recommended_actions) ? 
+                                // 显示处理流程（流程图版本）
+                                (analysisData && analysisData.recommended_actions) ? 
                                 h('div', [
-                                    h('strong', '处理流程: '),
-                                    h('div', { 
-                                        style: { 
-                                            marginTop: '8px', 
-                                            padding: '12px', 
-                                            background: '#fff', 
-                                            borderRadius: '4px',
-                                            fontFamily: 'monospace',
-                                            fontSize: '12px'
-                                        } 
-                                    }, (decision && decision.structured_decision) || (analysis && analysis.recommended_actions))
+                                    h('strong', '处置流程: '),
+                                    this.renderFlowchart(analysisData.recommended_actions)
                                 ]) : null
                             ])
                         ]) : null,
@@ -1001,26 +999,34 @@ export default {
                                 item.status === '待处理' ? 
                                 [
                                     h('a', {
-                                        style: { color: '#1890ff' },
+                                        props: { 
+                                            type: 'primary',
+                                            size: 'small',
+                                            style: { marginRight: '8px' }
+                                        },
                                         on: {
                                             click: () => {
-                                                this.$router.push(item.link);
+                                                this.handleAlertAction(item.alertInfo.alert_id);
                                                 this.$confirm.destroy();
                                             }
                                         }
-                                    }, `已生成剧本${item.workflowName}（点击跳转）`),
-                                    '，可审计'
+                                    }, '点击生成处置剧本')
                                 ] : 
                                 [
                                     h('a', {
                                         style: { color: '#1890ff' },
                                         on: {
                                             click: () => {
-                                                this.$router.push(item.link);
-                                                this.$confirm.destroy();
+                                                // 使用analysis数据中的analysis_id进行跳转
+                                                if (analysisId) {
+                                                    this.$router.push(`/workflow/edit/${analysisId}`);
+                                                    this.$confirm.destroy();
+                                                } else {
+                                                    this.$message.error('无法获取分析ID，无法跳转');
+                                                }
                                             }
                                         }
-                                    }, `已生成剧本${item.workflowName}（点击跳转）`),
+                                    }, `已生成处置剧本${item.workflowName}（点击跳转）`),
                                     '，已处理'
                                 ]
                             ])
@@ -1031,6 +1037,42 @@ export default {
                 cancelButtonProps: { style: { display: 'none' } },
                 icon: error ? 'exclamation-circle' : 'info-circle',
                 okType: 'default'
+            });
+        },
+        handleAlertAction(alertId) {
+            // 添加确认弹窗
+            this.$confirm({
+                title: '确认生成处置剧本',
+                content: '是否确认生成处置剧本？处置剧本将会自动化执行相关流程。',
+                okText: '确认生成',
+                cancelText: '取消',
+                okType: 'primary',
+                onOk: () => {
+                    // 调用 parseaction 接口
+                    const token = this.$cookies.get("token");
+                    
+                    this.$http.post('/api/v1/decision/alert/parseaction', {
+                        analyse_id: alertId,
+                        token: token
+                    })
+                    .then((res) => {
+                        if (res.code === 200 && res.data && res.data.workflow_uuid) {
+                            const workflowUuid = res.data.workflow_uuid;
+                            this.$message.success('剧本生成成功，正在跳转到处置流程');
+                            
+                            // 跳转到 workflow 页面
+                            setTimeout(() => {
+                                this.$router.push(`/workflow/edit/${workflowUuid}`);
+                            }, 1000);
+                        } else {
+                            this.$message.error('剧本生成失败: ' + (res.msg || '未知错误'));
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('调用 parseaction 接口失败:', error);
+                        this.$message.error('剧本生成失败，请稍后重试');
+                    });
+                }
             });
         },
         // Add helper methods for coloring severity and status
@@ -1082,6 +1124,141 @@ export default {
                     console.error("Failed to fetch alert data:", err); // 检查是否有网络或其他错误
                     return { list: [] };
                 });
+        },
+        renderFlowchart(recommendedActions) {
+            if (!recommendedActions) return null;
+            
+            // 处理数据格式，分割多个流程
+            const lines = recommendedActions.split('\n').filter(line => line.trim().length > 0);
+            const workflows = [];
+            
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine.includes('->')) {
+                    // 判断是否为推荐最优解
+                    const isOptimal = trimmedLine.includes('推荐最优解：');
+                    const workflowText = isOptimal ? trimmedLine.replace('推荐最优解：', '').trim() : trimmedLine;
+                    const steps = workflowText.split('->').map(step => step.trim()).filter(step => step.length > 0);
+                    
+                    if (steps.length > 0) {
+                        workflows.push({
+                            steps,
+                            isOptimal,
+                            title: isOptimal ? '推荐最优解' : '备选方案'
+                        });
+                    }
+                }
+            });
+            
+            if (workflows.length === 0) return null;
+            
+            const h = this.$createElement;
+            
+            return h('div', { 
+                style: { 
+                    marginTop: '8px'
+                } 
+            }, workflows.map((workflow, workflowIndex) => {
+                // 为推荐最优解和备选方案使用不同的颜色方案
+                const colors = workflow.isOptimal ? [
+                    '#f6ffed', // 浅绿色（推荐）
+                    '#e6fffb', // 浅青色
+                    '#e6f7ff', // 浅蓝色
+                    '#f9f0ff', // 浅紫色
+                    '#fff2e8', // 浅橙色
+                    '#fcffe6'  // 浅黄色
+                ] : [
+                    '#f5f5f5', // 浅灰色（备选）
+                    '#fafafa', // 更浅灰色
+                    '#f0f0f0', // 中等灰色
+                    '#e8e8e8', // 稍深灰色
+                    '#eeeeee', // 浅灰色
+                    '#f7f7f7'  // 极浅灰色
+                ];
+                
+                const borderColors = workflow.isOptimal ? [
+                    '#b7eb8f', // 绿色边框（推荐）
+                    '#87e8de', // 青色边框
+                    '#91d5ff', // 蓝色边框
+                    '#d3adf7', // 紫色边框
+                    '#ffc069', // 橙色边框
+                    '#eaff8f'  // 黄色边框
+                ] : [
+                    '#d9d9d9', // 灰色边框（备选）
+                    '#bfbfbf', // 深灰色边框
+                    '#a6a6a6', // 更深灰色边框
+                    '#8c8c8c', // 暗灰色边框
+                    '#737373', // 深暗灰色边框
+                    '#595959'  // 最深灰色边框
+                ];
+                
+                return h('div', {
+                    key: `workflow-${workflowIndex}`,
+                    style: {
+                        marginBottom: workflowIndex < workflows.length - 1 ? '16px' : '0',
+                        padding: '12px',
+                        border: workflow.isOptimal ? '2px solid #52c41a' : '1px solid #d9d9d9',
+                        borderRadius: '8px',
+                        backgroundColor: workflow.isOptimal ? '#f6ffed' : '#fafafa'
+                    }
+                }, [
+                    // 标题
+                    h('div', {
+                        style: {
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            color: workflow.isOptimal ? '#389e0d' : '#595959',
+                            marginBottom: '8px',
+                            display: 'flex',
+                            alignItems: 'center'
+                        }
+                    }, [
+                        workflow.isOptimal ? h('span', { style: { marginRight: '6px' } }, '⭐') : null,
+                        workflow.title
+                    ]),
+                    
+                    // 流程图
+                    h('div', { 
+                        style: { 
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '8px'
+                        } 
+                    }, workflow.steps.map((step, index) => {
+                        const colorIndex = index % colors.length;
+                        return [
+                            // 流程框
+                            h('div', {
+                                key: `step-${workflowIndex}-${index}`,
+                                style: {
+                                    padding: '6px 10px',
+                                    background: colors[colorIndex],
+                                    border: `1px solid ${borderColors[colorIndex]}`,
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    fontWeight: '500',
+                                    color: workflow.isOptimal ? '#262626' : '#595959',
+                                    minWidth: '60px',
+                                    textAlign: 'center',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                    transition: 'all 0.3s ease'
+                                }
+                            }, step),
+                            // 箭头（除了最后一个步骤）
+                            index < workflow.steps.length - 1 ? h('div', {
+                                key: `arrow-${workflowIndex}-${index}`,
+                                style: {
+                                    fontSize: '14px',
+                                    color: workflow.isOptimal ? '#52c41a' : '#8c8c8c',
+                                    fontWeight: 'bold'
+                                }
+                            }, '→') : null
+                        ];
+                    }).flat().filter(Boolean))
+                ]);
+            }));
         },
     },
     watch: {
