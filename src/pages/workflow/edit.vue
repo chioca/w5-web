@@ -1044,7 +1044,7 @@
             <a-row :gutter="16" class="report" style="margin: auto;">
                 <a-col :span="24">
                     <div class="header">
-                        <img class="logo" :src="BaseURL+'/public/logo.png'" />
+                        <!-- <img class="logo" :src="BaseURL+'/public/logo.png'" /> -->
                         <p class="logo_title">W5 SOAR v{{W5Version}} 执行报告 </p>
                     </div>
                 </a-col>
