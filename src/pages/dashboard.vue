@@ -64,17 +64,17 @@
                         <span slot="title" class="titlex">
                             <a-icon type="line-chart" /> 今日执行统计
                             <div class="dateSelect">
-                                <span :class="`cur `+execType1" @click="onLoadExec(1)">今日</span>
+                                <span :class="`cur `+execType1" @click="onLoadExec_cnt(1)">今日</span>
                                 <a-divider type="vertical" />
-                                <span :class="`cur `+execType2" @click="onLoadExec(2)">昨日</span>
+                                <span :class="`cur `+execType2" @click="onLoadExec_cnt(2)">昨日</span>
                                 <a-divider type="vertical" />
-                                <span :class="`cur `+execType3" @click="onLoadExec(3)">本周</span>
+                                <span :class="`cur `+execType3" @click="onLoadExec_cnt(3)">本周</span>
                                 <a-divider type="vertical" />
-                                <span :class="`cur `+execType4" @click="onLoadExec(4)">本月</span>
+                                <span :class="`cur `+execType4" @click="onLoadExec_cnt(4)">本月</span>
                                 <a-divider type="vertical" />
-                                <span :class="`cur `+execType5" @click="onLoadExec(5)">上月</span>
+                                <span :class="`cur `+execType5" @click="onLoadExec_cnt(5)">上月</span>
                                 <a-divider type="vertical" />
-                                <span :class="`cur `+execType6" @click="onLoadExec(6)">本年</span>
+                                <span :class="`cur `+execType6" @click="onLoadExec_cnt(6)">本年</span>
                             </div>
                         </span>
                         <div class="tb_div" id="main2"></div>
@@ -301,6 +301,7 @@ export default {
     methods: {
         onLoad() {
             this.theme = this.$cookies.get("theme");
+            this.onLoadExec_cnt(1);
             this.onLoadSums();
             this.onLoadLogs();
             this.onLoadWorkflow();
@@ -429,6 +430,65 @@ export default {
                     }
                 });
         },
+        onLoadExec_cnt(type = 1) {
+
+            if (type === 1) {
+                this.execType1 = "active";
+                this.execType2 = "";
+                this.execType3 = "";
+                this.execType4 = "";
+                this.execType5 = "";
+                this.execType6 = "";
+            } else if (type === 2) {
+                this.execType1 = "";
+                this.execType2 = "active";
+                this.execType3 = "";
+                this.execType4 = "";
+                this.execType5 = "";
+                this.execType6 = "";
+            } else if (type === 3) {
+                this.execType1 = "";
+                this.execType2 = "";
+                this.execType3 = "active";
+                this.execType4 = "";
+                this.execType5 = "";
+                this.execType6 = "";
+            } else if (type === 4) {
+                this.execType1 = "";
+                this.execType2 = "";
+                this.execType3 = "";
+                this.execType4 = "active";
+                this.execType5 = "";
+                this.execType6 = "";
+            } else if (type === 5) {
+                this.execType1 = "";
+                this.execType2 = "";
+                this.execType3 = "";
+                this.execType4 = "";
+                this.execType5 = "active";
+                this.execType6 = "";
+            } else if (type === 6) {
+                this.execType1 = "";
+                this.execType2 = "";
+                this.execType3 = "";
+                this.execType4 = "";
+                this.execType5 = "";
+                this.execType6 = "active";
+            }
+
+            this.$http
+                .post("/api/v1/soar/get/dashboard/exec", {
+                    type: type
+                })
+                .then((res) => {
+                    if (res.code == 0) {
+                        this.exec_data = res.data;
+                        this.onLoadMain2();
+                    } else {
+                        this.$message.error(res.msg);
+                    }
+                });
+            },
         onLoadExec(type = 1) {
             // 设置当前选中的时间范围
             if (type === 1) {
