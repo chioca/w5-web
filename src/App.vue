@@ -63,7 +63,7 @@ export default {
                     localStorage.setItem('w5_token', token);
                     
                     // 更新登录状态
-                    this.is_login = true;
+                    this.is_login = false;
                     this.loading = false;
 
                     // 认证成功后跳转到仪表盘
