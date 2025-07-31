@@ -27,11 +27,18 @@ export default {
     },
     created() {
         this.boolPage();
+        // 监听来自父页面的消息
+        window.addEventListener('message', this.handleMessage);
+    },
+    beforeDestroy() {
+        // 清理事件监听器
+        window.removeEventListener('message', this.handleMessage);
     },
     methods: {
         handleMessage(event) {
             // 安全性检查：确保消息来自预期的源（主应用的域名和端口）
             const expectedOrigin = 'http://localhost:3000';
+            console.log("event.origin:",event.origin);
             if (event.origin !== expectedOrigin) {
                 console.warn(`Message from unexpected origin: ${event.origin}. Ignoring.`);
                 return;
@@ -40,19 +47,23 @@ export default {
             const data = event.data;
 
             // 检查消息类型并处理
-            if (data && data.type === 'W5_AUTH_TOKEN') {
-                const { token, account, user_id, nick_name, user_nav } = data.payload;
-                console.log('Received authentication data from parent window');
+            if (data && data.type === 'W5_AUTH_TOKEN' && data.from === 'parent') {
+                const token = data.token;
+                console.log('Received authentication token from parent window:', token);
 
-                // 使用项目现有的认证方式：vue-cookies + axios 拦截器
-                this.$cookies.set('token', token);
-                if (account) this.$cookies.set('account', account);
-                if (user_id) this.$cookies.set('user_id', user_id);
-                if (nick_name) this.$cookies.set('nick_name', nick_name);
-                if (user_nav) this.$cookies.set('user_nav', user_nav);
-
-                // 认证成功后跳转到仪表盘
-                this.$router.push({ path: '/dashboard' });
+                if (token) {
+                    // 使用项目现有的认证方式：vue-cookies + localStorage
+                    this.$cookies.set('token', token);
+                    localStorage.setItem('w5_token', token);
+                    
+                    // 更新登录状态
+                    this.is_login = true;
+                    
+                    // 认证成功后跳转到仪表盘
+                    this.$router.push({ path: '/dashboard' });
+                } else {
+                    console.error('Token is empty or invalid');
+                }
             }
         },
         boolPage() {
