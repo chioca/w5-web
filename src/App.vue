@@ -14,8 +14,6 @@
 
 <script>
 import MyNav from "@/components/MyNav";
-import { use } from "vue/types/umd";
-
 export default {
     name: "App",
     components: {
