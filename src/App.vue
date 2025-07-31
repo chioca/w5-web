@@ -14,6 +14,7 @@
 
 <script>
 import MyNav from "@/components/MyNav";
+import { use } from "vue/types/umd";
 
 export default {
     name: "App",
@@ -49,11 +50,13 @@ export default {
             // 检查消息类型并处理
             if (data && data.type === 'W5_AUTH_TOKEN' && data.from === 'parent') {
                 const token = data.token;
+                const id = data.user_id;
                 console.log('Received authentication token from parent window:', token);
 
                 if (token) {
                     // 使用项目现有的认证方式：vue-cookies + localStorage
                     this.$cookies.set('token', token);
+                    this.$cookies.set('user_id',user_id);
                     localStorage.setItem('w5_token', token);
                     
                     // 更新登录状态
