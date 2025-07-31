@@ -54,7 +54,7 @@ export default {
                 if (token) {
                     // 使用项目现有的认证方式：vue-cookies + localStorage
                     this.$cookies.set('token', token);
-                    this.$cookies.set('user_id',user_id);
+                    this.$cookies.set('user_id',id);
                     localStorage.setItem('w5_token', token);
                     
                     // 更新登录状态
