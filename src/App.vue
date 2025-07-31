@@ -44,24 +44,31 @@ export default {
             // }
 
             const data = event.data;
-
+    
             // 检查消息类型并处理
             if (data && data.type === 'W5_AUTH_TOKEN' && data.from === 'parent') {
                 const token = data.token;
-                const id = data.user_id;
+                const user_id = data.user_id;
+                const nick_name = data.nick_name;
+                const account = data.account;
                 console.log('Received authentication token from parent window:', token);
 
                 if (token) {
                     // 使用项目现有的认证方式：vue-cookies + localStorage
-                    this.$cookies.set('token', token);
-                    this.$cookies.set('user_id',id);
+
+                    this.$cookies.set("token", token);
+                    this.$cookies.set("nick_name", nick_name);
+                    this.$cookies.set("account", account);
+                    this.$cookies.set("user_id", user_id);
                     localStorage.setItem('w5_token', token);
                     
                     // 更新登录状态
                     this.is_login = true;
-                    
+                    this.loading = false;
+
                     // 认证成功后跳转到仪表盘
-                    this.$router.push({ path: '/dashboard' });
+                    // this.$router.push({ path: '/dashboard' });
+                    window.location.href = '/';
                 } else {
                     console.error('Token is empty or invalid');
                 }
