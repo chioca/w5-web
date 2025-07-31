@@ -542,18 +542,18 @@ export default {
                 .then((res) => {
                     if (res.code == 0) {
                         // 确保 exec_data 正确初始化
-                        if (res.data && Array.isArray(res.data.execData)) {
-                            this.exec_data = res.data.execData;
-                        } else {
-                            // 回退到空数组或默认数据结构
-                            this.exec_data = [];
-                            console.warn('执行数据格式不符合预期', res.data);
-                        }
+                        // if (res.data && Array.isArray(res.data.execData)) {
+                        //     this.exec_data = res.data.execData;
+                        // } else {
+                        //     // 回退到空数组或默认数据结构
+                        //     this.exec_data = [];
+                        //     console.warn('执行数据格式不符合预期', res.data);
+                        // }
                         
                         // 在调用图表渲染前确保数据已准备好
-                        this.$nextTick(() => {
-                            this.onLoadMain2();
-                        });
+                        // this.$nextTick(() => {
+                        //     this.onLoadMain2();
+                        // });
 
                         // 处理告警信息
                         if (res.data && Array.isArray(res.data.list)) {
