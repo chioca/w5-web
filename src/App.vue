@@ -67,8 +67,8 @@ export default {
                     this.loading = false;
 
                     // 认证成功后跳转到仪表盘
-                    // this.$router.push({ path: '/dashboard' });
-                    window.location.href = '/';
+                    this.$router.push({ path: '/dashboard' });
+                    // window.location.href = '/';
                 } else {
                     console.error('Token is empty or invalid');
                 }
