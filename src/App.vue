@@ -37,12 +37,12 @@ export default {
     methods: {
         handleMessage(event) {
             // 安全性检查：确保消息来自预期的源（主应用的域名和端口）
-            const expectedOrigin = 'http://localhost:3000';
-            console.log("event.origin:",event.origin);
-            if (event.origin !== expectedOrigin) {
-                console.warn(`Message from unexpected origin: ${event.origin}. Ignoring.`);
-                return;
-            }
+            // const expectedOrigin = 'http://localhost:3000';
+            // console.log("event.origin:",event.origin);
+            // if (event.origin !== expectedOrigin) {
+            //     console.warn(`Message from unexpected origin: ${event.origin}. Ignoring.`);
+            //     return;
+            // }
 
             const data = event.data;
 
