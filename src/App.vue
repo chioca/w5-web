@@ -51,6 +51,7 @@ export default {
                 const user_id = data.user_id;
                 const nick_name = data.nick_name;
                 const account = data.account;
+                const theme = "bright";
                 console.log('Received authentication token from parent window:', token);
 
                 if (token) {
@@ -60,6 +61,7 @@ export default {
                     this.$cookies.set("nick_name", nick_name);
                     this.$cookies.set("account", account);
                     this.$cookies.set("user_id", user_id);
+                    this.$cookies.set("theme",theme);
                     localStorage.setItem('w5_token', token);
                     
                     // 更新登录状态
