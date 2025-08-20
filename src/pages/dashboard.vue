@@ -1349,10 +1349,8 @@ export default {
                             click: () => {
                               // 使用workflow_uuid进行跳转
                               if (workflow_uuid) {
-                                this.$router.uuid = workflow_uuid;
-                                this.$router.push(
-                                  `/workflow/edit/${workflow_uuid}`
-                                );
+                                const uuid = workflow_uuid;
+                                this.$router.push(`/workflow/edit/${uuid}`);
                                 this.$confirm.destroy();
                               } else {
                                 this.$message.error("无法获取分析ID，无法跳转");
