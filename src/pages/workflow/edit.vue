@@ -4028,7 +4028,12 @@ export default {
 
       let width = document.body.offsetWidth - 50;
       let height = document.body.offsetHeight;
-      this.graph.resize(width, height);
+
+      if (this.graph && this.graph.resize) {
+        this.graph.resize(width, height);
+      } else {
+        console.warn("graph 未初始化，跳过 resize");
+      }
     },
     // APP MD 文档
     onShowMd() {

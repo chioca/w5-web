@@ -1039,7 +1039,7 @@ export default {
       }
     },
 
-    renderNotificationModal(item, data) {
+    async renderNotificationModal(item, data) {
       const { analysis, decision, error } = data;
       const alertId = item.alertInfo && item.alertInfo.alert_id;
       // 从analysis数据中获取analysis_id用于跳转
@@ -1057,14 +1057,18 @@ export default {
           ? analysis.list[0]
           : null;
 
-      const workflow_uuid = this.$http
-        .post(`/api/v1/decision/alert/getworkflowuuid`, { alert_id: alertId })
-        .then((workflowRes) => {
-          if (workflowRes.code == 200) {
-            return workflowRes.workflow_uuid;
-          }
-        });
-      console.log(workflow_uuid);
+      let workflow_uuid = null;
+      try {
+        const workflowRes = await this.$http.post(
+          `/api/v1/decision/alert/getworkflowuuid`,
+          { alert_id: alertId }
+        );
+        if (workflowRes.code === 200) {
+          workflow_uuid = workflowRes.data.workflow_uuid;
+        }
+      } catch (e) {
+        this.$message.error("获取 workflow_uuid 失败");
+      }
       this.$confirm({
         title: "告警通知详情",
         width: 900,
@@ -1396,8 +1400,8 @@ export default {
 
                 // 跳转到 workflow 页面
                 setTimeout(() => {
-                  this.$router.uuid = workflowUuid;
-                  this.$router.push(`/workflow/edit/${workflowUuid}`);
+                  const uuid = workflowUuid;
+                  this.$router.push(`/workflow/edit/${uuid}`);
                 }, 1000);
               } else {
                 this.$message.error("剧本生成失败: " + (res.msg || "未知错误"));
