@@ -409,6 +409,7 @@ export default {
   },
   methods: {
     onLoad() {
+      this.$cookies.set('theme','bright');
       this.theme = this.$cookies.get("theme") || "bright";
       this.onLoadSums();
       this.onLoadLogs();
