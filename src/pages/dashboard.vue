@@ -222,9 +222,9 @@
                     style="margin-right: 3px"
                     :src="
                       BaseURL +
-                      '/app/' +
-                      JSON.parse(record.args).app_dir +
-                      '/icon.png'
+                        '/app/' +
+                        JSON.parse(record.args).app_dir +
+                        '/icon.png'
                     "
                   />
                   <a-tag color="#7d838c">{{ text }} </a-tag>
@@ -274,7 +274,7 @@
                       class="status-tag"
                       :class="{
                         pending: item.status === '待处理',
-                        processed: item.status === '已处理',
+                        processed: item.status === '已处理'
                       }"
                       @click="showNotificationDetail(item)"
                     >
@@ -300,6 +300,7 @@
 <script>
 import { Area, Pie } from "@antv/g2plot";
 import multiavatar from "@multiavatar/multiavatar";
+import { notification } from "ant-design-vue";
 
 const columns = [
   {
@@ -307,45 +308,45 @@ const columns = [
     dataIndex: "name",
     key: "name",
     scopedSlots: {
-      customRender: "name",
+      customRender: "name"
     },
-    width: 220,
+    width: 220
   },
   {
     title: "APP 名称",
     dataIndex: "app_name",
     key: "app_name",
     scopedSlots: {
-      customRender: "app_name",
+      customRender: "app_name"
     },
-    width: 160,
+    width: 160
   },
   {
     title: "执行结果",
     dataIndex: "result",
     key: "result",
     scopedSlots: {
-      customRender: "result",
-    },
+      customRender: "result"
+    }
   },
   {
     title: "级别",
     dataIndex: "status",
     key: "status",
     scopedSlots: {
-      customRender: "status",
+      customRender: "status"
     },
-    width: 60,
+    width: 60
   },
   {
     title: "创建时间",
     key: "create_time",
     dataIndex: "create_time",
     scopedSlots: {
-      customRender: "create_time",
+      customRender: "create_time"
     },
-    width: 190,
-  },
+    width: 190
+  }
 ];
 
 export default {
@@ -383,33 +384,33 @@ export default {
       execType5: "",
       execType6: "",
       sy: {
-        y: "300px",
+        y: "300px"
       },
       loginstyle: "",
       notifications: [],
-      notificationStyle: "height: calc(100vh -265px); overflow-y: auto;",
+      notificationStyle: "height: calc(100vh -265px); overflow-y: auto;"
     };
   },
   computed: {
     collapsed: {
-      get: function () {
+      get: function() {
         return this.$store.getters.getCollapsed;
       },
-      set: function (val) {
+      set: function(val) {
         if (val) {
           this.$store.commit("closeCollapsed");
         } else {
           this.$store.commit("openCollapsed");
         }
-      },
-    },
+      }
+    }
   },
   mounted() {
     this.onLoad();
   },
   methods: {
     onLoad() {
-      this.$cookies.set('theme','bright');
+      this.$cookies.set("theme", "bright");
       this.theme = this.$cookies.get("theme") || "bright";
       this.onLoadSums();
       this.onLoadLogs();
@@ -436,26 +437,26 @@ export default {
 
       if (clientHeight >= 900) {
         that.sy = {
-          y: "calc(100vh - 610px)",
+          y: "calc(100vh - 610px)"
         };
         that.loginstyle = "height: calc(100vh - 265px);overflow-y: auto;";
       } else {
         that.sy = {
-          y: "300px",
+          y: "300px"
         };
         that.loginstyle = "height: 645px;overflow-y: auto;";
       }
 
-      window.onresize = function () {
+      window.onresize = function() {
         let clientHeight = document.documentElement.clientHeight;
         if (clientHeight >= 900) {
           that.sy = {
-            y: "calc(100vh - 610px)",
+            y: "calc(100vh - 610px)"
           };
           that.loginstyle = "height: calc(100vh - 265px);overflow-y: auto;";
         } else {
           that.sy = {
-            y: "300px",
+            y: "300px"
           };
           that.loginstyle = "height: 645px;overflow-y: auto;";
         }
@@ -491,9 +492,9 @@ export default {
     getUserInfo() {
       this.$http
         .post("/api/v1/soar/get/user/info", {
-          id: this.$cookies.get("user_id"),
+          id: this.$cookies.get("user_id")
         })
-        .then((res) => {
+        .then(res => {
           if (res.code == 0) {
             this.avatar = res.data.avatar;
             this.nick_name = res.data.nick_name;
@@ -502,11 +503,11 @@ export default {
     },
     gd() {
       this.$router.push({
-        name: "LogsHome",
+        name: "LogsHome"
       });
     },
     onLoadSums() {
-      this.$http.post("/api/v1/soar/get/dashboard/sums").then((res) => {
+      this.$http.post("/api/v1/soar/get/dashboard/sums").then(res => {
         if (res.code == 0) {
           this.sums_data = res.data;
         } else {
@@ -515,7 +516,7 @@ export default {
       });
     },
     onLoadLogs() {
-      this.$http.post("/api/v1/soar/get/dashboard/logs").then((res) => {
+      this.$http.post("/api/v1/soar/get/dashboard/logs").then(res => {
         if (res.code == 0) {
           this.logs_data = res.data;
         } else {
@@ -524,7 +525,7 @@ export default {
       });
     },
     onLoadWorkflow() {
-      this.$http.post("/api/v1/soar/get/dashboard/workflow").then((res) => {
+      this.$http.post("/api/v1/soar/get/dashboard/workflow").then(res => {
         if (res.code == 0) {
           this.workflow_data = res.data;
           this.onLoadMain1();
@@ -580,9 +581,9 @@ export default {
 
       this.$http
         .post("/api/v1/soar/get/dashboard/exec", {
-          type: type,
+          type: type
         })
-        .then((res) => {
+        .then(res => {
           if (res.code == 0) {
             this.exec_data = res.data;
             this.onLoadMain2();
@@ -640,7 +641,7 @@ export default {
       // 获取执行数据
       this.$http
         .get(`/api/v1/soar/get/alert/message?type=${type}`)
-        .then((res) => {
+        .then(res => {
           if (res.code == 0) {
             // 确保 exec_data 正确初始化
             // if (res.data && Array.isArray(res.data.execData)) {
@@ -676,19 +677,16 @@ export default {
                   id: index + 1,
                   time: alertInfo.create_time || "未知时间",
                   title: `${alertInfo.attack_type || "未知类型"}`,
-                  message: `检测到${
-                    alertInfo.attack_type || "未知"
-                  }攻击，源IP: ${alertInfo.source_ip || "N/A"}，目标IP: ${
-                    alertInfo.destination_ip || "N/A"
-                  }`,
+                  message: `检测到${alertInfo.attack_type ||
+                    "未知"}攻击，源IP: ${alertInfo.source_ip ||
+                    "N/A"}，目标IP: ${alertInfo.destination_ip || "N/A"}`,
                   status: alertInfo.is_processed === 0 ? "待处理" : "已处理",
                   link: `/workflow/${alertInfo.alert_id || 0}`,
-                  workflowName: `${
-                    alertInfo.attack_type || "未知类型"
-                  }处理剧本`,
+                  workflowName: `${alertInfo.attack_type ||
+                    "未知类型"}处理剧本`,
                   icon: icon,
                   color: color,
-                  alertInfo: alertInfo, // 保存完整的告警信息以便详情显示
+                  alertInfo: alertInfo // 保存完整的告警信息以便详情显示
                 };
               });
             } else {
@@ -699,7 +697,7 @@ export default {
             this.$message.error(res.msg || "获取数据失败");
           }
         })
-        .catch((error) => {
+        .catch(error => {
           console.error("Error fetching alert data:", error);
           this.$message.error("获取数据发生错误");
         });
@@ -720,14 +718,14 @@ export default {
             type: "outer",
             content: "{name}\n{percentage}",
             style: {
-              fill: "#000",
-            },
+              fill: "#000"
+            }
           },
           legend: false,
           interactions: [
             {
-              type: "element-active",
-            },
+              type: "element-active"
+            }
           ],
           color: [
             "#1890ff",
@@ -737,8 +735,8 @@ export default {
             "#59747e",
             "#914fd9",
             "#b3b543",
-            "#8ccdd7",
-          ],
+            "#8ccdd7"
+          ]
         });
 
         this.piePlot.render();
@@ -753,14 +751,14 @@ export default {
             type: "outer",
             content: "{name}\n{percentage}",
             style: {
-              fill: "#fff",
-            },
+              fill: "#fff"
+            }
           },
           legend: false,
           interactions: [
             {
-              type: "element-active",
-            },
+              type: "element-active"
+            }
           ],
           color: [
             "#1890ff",
@@ -770,8 +768,8 @@ export default {
             "#59747e",
             "#914fd9",
             "#b3b543",
-            "#8ccdd7",
-          ],
+            "#8ccdd7"
+          ]
         });
 
         this.piePlot.render();
@@ -796,15 +794,15 @@ export default {
           yField: "value",
           xAxis: {
             range: [0, 1],
-            tickCount: 5,
+            tickCount: 5
           },
           color: "#1890ff",
           smooth: true,
           areaStyle: () => {
             return {
-              fill: "l(270) 0:#ffffff 0.5:#1890ff 1:#1890ff",
+              fill: "l(270) 0:#ffffff 0.5:#1890ff 1:#1890ff"
             };
-          },
+          }
         });
         this.areaPlot.render();
       } catch (err) {
@@ -812,7 +810,7 @@ export default {
       }
     },
     onW5Json(type = 0) {
-      this.$http.post("/api/v1/soar/get/system/w5json").then((res) => {
+      this.$http.post("/api/v1/soar/get/system/w5json").then(res => {
         if (res.code == 0) {
           this.w5_json = res.data;
 
@@ -825,13 +823,13 @@ export default {
               message: `W5 SOAR ${this.w5_json.w5.version} 更新提醒`,
               description: this.w5_json.w5.text,
               duration: 5,
-              btn: (h) => {
+              btn: h => {
                 return h(
                   "a-button",
                   {
                     props: {
                       type: "primary",
-                      size: "small",
+                      size: "small"
                     },
                     on: {
                       click: () => {
@@ -840,13 +838,13 @@ export default {
                           "https://w5.io/help/unclassified/update.html",
                           "_blank"
                         );
-                      },
-                    },
+                      }
+                    }
                   },
                   "前往更新"
                 );
               },
-              key,
+              key
             });
           } else if (newx[0] == old[0]) {
             if (newx[1] > old[1]) {
@@ -855,13 +853,13 @@ export default {
                 message: `W5 SOAR ${this.w5_json.w5.version} 更新提醒`,
                 description: this.w5_json.w5.text,
                 duration: 5,
-                btn: (h) => {
+                btn: h => {
                   return h(
                     "a-button",
                     {
                       props: {
                         type: "primary",
-                        size: "small",
+                        size: "small"
                       },
                       on: {
                         click: () => {
@@ -870,13 +868,13 @@ export default {
                             "https://w5.io/help/unclassified/update.html",
                             "_blank"
                           );
-                        },
-                      },
+                        }
+                      }
                     },
                     "前往更新"
                   );
                 },
-                key,
+                key
               });
             } else if (newx[1] == old[1]) {
               if (newx[2] > old[2]) {
@@ -885,13 +883,13 @@ export default {
                   message: `W5 SOAR ${this.w5_json.w5.version} 更新提醒`,
                   description: this.w5_json.w5.text,
                   duration: 5,
-                  btn: (h) => {
+                  btn: h => {
                     return h(
                       "a-button",
                       {
                         props: {
                           type: "primary",
-                          size: "small",
+                          size: "small"
                         },
                         on: {
                           click: () => {
@@ -900,20 +898,20 @@ export default {
                               "https://w5.io/help/unclassified/update.html",
                               "_blank"
                             );
-                          },
-                        },
+                          }
+                        }
                       },
                       "前往更新"
                     );
                   },
-                  key,
+                  key
                 });
               } else {
                 if (type != "0") {
                   this.$notification["info"]({
                     message: `W5 SOAR 提醒你`,
                     description: "当前已经是最新版本",
-                    duration: 2,
+                    duration: 2
                   });
                 }
               }
@@ -922,7 +920,7 @@ export default {
                 this.$notification["info"]({
                   message: `W5 SOAR 提醒你`,
                   description: "当前已经是最新版本",
-                  duration: 2,
+                  duration: 2
                 });
               }
             }
@@ -931,7 +929,7 @@ export default {
               this.$notification["info"]({
                 message: `W5 SOAR 提醒你`,
                 description: "当前已经是最新版本",
-                duration: 2,
+                duration: 2
               });
             }
           }
@@ -939,13 +937,11 @@ export default {
       });
     },
     onLoginHistory() {
-      this.$http
-        .post("/api/v1/soar/get/dashboard/login_history")
-        .then((res) => {
-          if (res.code == 0) {
-            this.login_history = res.data;
-          }
-        });
+      this.$http.post("/api/v1/soar/get/dashboard/login_history").then(res => {
+        if (res.code == 0) {
+          this.login_history = res.data;
+        }
+      });
     },
     removeNotification(index) {
       const notification = this.notifications[index];
@@ -968,7 +964,7 @@ export default {
           // Call API to delete from database
           this.$http
             .post("/api/v1/soar/post/alert/del", { alert_id: alertId })
-            .then((res) => {
+            .then(res => {
               if (res.code === 0) {
                 // Remove from frontend array after successful API call
                 this.notifications.splice(index, 1);
@@ -977,11 +973,11 @@ export default {
                 this.$message.error("删除失败: " + (res.msg || "未知错误"));
               }
             })
-            .catch((error) => {
+            .catch(error => {
               console.error("删除告警失败:", error);
               this.$message.error("删除告警时发生错误，请稍后重试");
             });
-        },
+        }
       });
     },
     showNotificationDetail(item) {
@@ -997,44 +993,44 @@ export default {
         // 如果已决策，直接调用analysis接口
         this.$http
           .get(`/api/v1/soar/get/analysis/message?alert_id=${alertId}`)
-          .then((analysisRes) => {
+          .then(analysisRes => {
             this.renderNotificationModal(item, {
               analysis: analysisRes.data,
-              decision: null,
+              decision: null
             });
           })
-          .catch((error) => {
+          .catch(error => {
             console.error("获取分析信息失败:", error);
             this.renderNotificationModal(item, {
               analysis: null,
               decision: null,
-              error: "获取分析信息失败",
+              error: "获取分析信息失败"
             });
           });
       } else {
         // 如果未决策，先调用decision接口，再调用analysis接口
         this.$http
           .post("/api/v1/decision/alert/decision", { alert_id: alertId })
-          .then((decisionRes) => {
+          .then(decisionRes => {
             const decisionData =
               decisionRes.code === 200 ? decisionRes.data : null;
 
             // 调用decision接口后，再调用analysis接口
             return this.$http
               .get(`/api/v1/soar/get/analysis/message?alert_id=${alertId}`)
-              .then((analysisRes) => {
+              .then(analysisRes => {
                 this.renderNotificationModal(item, {
                   analysis: analysisRes.data,
-                  decision: decisionData,
+                  decision: decisionData
                 });
               });
           })
-          .catch((error) => {
+          .catch(error => {
             console.error("获取决策或分析信息失败:", error);
             this.renderNotificationModal(item, {
               analysis: null,
               decision: null,
-              error: "获取决策或分析信息失败",
+              error: "获取决策或分析信息失败"
             });
           });
       }
@@ -1062,7 +1058,7 @@ export default {
       try {
         const workflowRes = await this.$http.post(
           `/api/v1/decision/alert/getworkflowuuid`,
-          { alert_id: alertId }
+          { notification_id: alertId }
         );
         if (workflowRes.code === 200) {
           workflow_uuid = workflowRes.data.workflow_uuid;
@@ -1073,7 +1069,7 @@ export default {
       this.$confirm({
         title: "告警通知详情",
         width: 900,
-        content: (h) => {
+        content: h => {
           const hasAlertInfo =
             item.alertInfo && typeof item.alertInfo === "object";
 
@@ -1086,14 +1082,14 @@ export default {
                   style: {
                     marginBottom: "10px",
                     borderBottom: "1px solid #f0f0f0",
-                    paddingBottom: "8px",
-                  },
+                    paddingBottom: "8px"
+                  }
                 },
                 "基本信息"
               ),
               h("p", [
                 h("span", { style: { fontWeight: "bold" } }, "通知标题: "),
-                item.title,
+                item.title
               ]),
               h("p", [
                 h("span", { style: { fontWeight: "bold" } }, "消息内容: "),
@@ -1105,12 +1101,12 @@ export default {
                       margin: "10px 0",
                       padding: "10px",
                       border: "1px solid #f0f0f0",
-                      borderRadius: "4px",
-                    },
+                      borderRadius: "4px"
+                    }
                   },
                   item.message
-                ),
-              ]),
+                )
+              ])
             ]),
 
             // 告警详情（原有信息）
@@ -1122,8 +1118,8 @@ export default {
                       style: {
                         marginBottom: "10px",
                         borderBottom: "1px solid #f0f0f0",
-                        paddingBottom: "8px",
-                      },
+                        paddingBottom: "8px"
+                      }
                     },
                     "告警详情"
                   ),
@@ -1133,19 +1129,19 @@ export default {
                       style: {
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
-                        gap: "8px",
-                      },
+                        gap: "8px"
+                      }
                     },
                     [
                       // 第一列
                       h("div", [
                         h("p", [
                           h("strong", "告警ID: "),
-                          item.alertInfo.alert_id || "--",
+                          item.alertInfo.alert_id || "--"
                         ]),
                         h("p", [
                           h("strong", "攻击类型: "),
-                          item.alertInfo.attack_type || "--",
+                          item.alertInfo.attack_type || "--"
                         ]),
                         h("p", [
                           h("strong", "严重程度: "),
@@ -1156,44 +1152,44 @@ export default {
                                 color: this.getSeverityColor(
                                   item.alertInfo.severity
                                 ),
-                                fontWeight: "bold",
-                              },
+                                fontWeight: "bold"
+                              }
                             },
                             item.alertInfo.severity || "--"
-                          ),
+                          )
                         ]),
                         h("p", [
                           h("strong", "协议: "),
-                          item.alertInfo.protocol || "--",
+                          item.alertInfo.protocol || "--"
                         ]),
                         h("p", [
                           h("strong", "检测系统: "),
-                          item.alertInfo.detection_system || "--",
-                        ]),
+                          item.alertInfo.detection_system || "--"
+                        ])
                       ]),
                       // 第二列
                       h("div", [
                         h("p", [
                           h("strong", "源IP: "),
-                          item.alertInfo.source_ip || "--",
+                          item.alertInfo.source_ip || "--"
                         ]),
                         h("p", [
                           h("strong", "源端口: "),
-                          item.alertInfo.source_port || "--",
+                          item.alertInfo.source_port || "--"
                         ]),
                         h("p", [
                           h("strong", "目标IP: "),
-                          item.alertInfo.destination_ip || "--",
+                          item.alertInfo.destination_ip || "--"
                         ]),
                         h("p", [
                           h("strong", "目标端口: "),
-                          item.alertInfo.destination_port || "--",
+                          item.alertInfo.destination_port || "--"
                         ]),
                         h("p", [
                           h("strong", "告警时间: "),
-                          item.alertInfo.timestamp || "--",
-                        ]),
-                      ]),
+                          item.alertInfo.timestamp || "--"
+                        ])
+                      ])
                     ]
                   ),
                   h("p", { style: { marginTop: "10px" } }, [
@@ -1205,12 +1201,12 @@ export default {
                           padding: "8px",
                           background: "#f9f9f9",
                           borderRadius: "4px",
-                          marginTop: "4px",
-                        },
+                          marginTop: "4px"
+                        }
                       },
                       item.alertInfo.signature || "--"
-                    ),
-                  ]),
+                    )
+                  ])
                 ])
               : null,
 
@@ -1223,8 +1219,8 @@ export default {
                       style: {
                         marginBottom: "10px",
                         borderBottom: "1px solid #ffff",
-                        paddingBottom: "8px",
-                      },
+                        paddingBottom: "8px"
+                      }
                     },
                     "决策分析"
                   ),
@@ -1235,8 +1231,8 @@ export default {
                         padding: "12px",
                         background: "#ffff",
                         border: "1px solid #91d5ff",
-                        borderRadius: "4px",
-                      },
+                        borderRadius: "4px"
+                      }
                     },
                     [
                       // 显示自然语言决策（decision优先，否则使用analysis的notes）
@@ -1252,16 +1248,16 @@ export default {
                                   padding: "8px",
                                   background: "#fff",
                                   borderRadius: "4px",
-                                  whiteSpace: "pre-line",
+                                  whiteSpace: "pre-line"
                                   // maxHeight: '200px',
                                   // overflowY: 'auto'
-                                },
+                                }
                               },
                               (decision &&
                                 decision.natural_language_decision) ||
                                 (analysisData && analysisData.notes) ||
                                 "暂无说明"
-                            ),
+                            )
                           ])
                         : null,
 
@@ -1271,11 +1267,11 @@ export default {
                             h("strong", "处置流程: "),
                             this.renderFlowchart(
                               analysisData.recommended_actions
-                            ),
+                            )
                           ])
-                        : null,
+                        : null
                     ]
-                  ),
+                  )
                 ])
               : null,
 
@@ -1289,11 +1285,11 @@ export default {
                         padding: "12px",
                         background: "#fff2f0",
                         border: "1px solid #ffccc7",
-                        borderRadius: "4px",
-                      },
+                        borderRadius: "4px"
+                      }
                     },
                     [h("p", { style: { color: "#ff4d4f", margin: 0 } }, error)]
-                  ),
+                  )
                 ])
               : null,
 
@@ -1305,8 +1301,8 @@ export default {
                   style: {
                     marginBottom: "10px",
                     borderBottom: "1px solid #f0f0f0",
-                    paddingBottom: "8px",
-                  },
+                    paddingBottom: "8px"
+                  }
                 },
                 "处理状态"
               ),
@@ -1317,11 +1313,11 @@ export default {
                   {
                     style: {
                       color: item.status === "待处理" ? "#ff4d4f" : "#52c41a",
-                      fontWeight: "bold",
-                    },
+                      fontWeight: "bold"
+                    }
                   },
                   item.status
-                ),
+                )
               ]),
               h("p", [
                 h("span", { style: { fontWeight: "bold" } }, "处理: "),
@@ -1333,17 +1329,17 @@ export default {
                           props: {
                             type: "primary",
                             size: "small",
-                            style: { marginRight: "8px" },
+                            style: { marginRight: "8px" }
                           },
                           on: {
                             click: () => {
                               this.handleAlertAction(item.alertInfo.alert_id);
                               this.$confirm.destroy();
-                            },
-                          },
+                            }
+                          }
                         },
                         "点击生成处置剧本"
-                      ),
+                      )
                     ]
                   : [
                       h(
@@ -1360,21 +1356,21 @@ export default {
                               } else {
                                 this.$message.error("无法获取分析ID，无法跳转");
                               }
-                            },
-                          },
+                            }
+                          }
                         },
                         `已生成处置剧本${item.workflowName}（点击跳转）`
                       ),
-                      "，已处理",
-                    ],
-              ]),
-            ]),
+                      "，已处理"
+                    ]
+              ])
+            ])
           ]);
         },
         okText: "关闭",
         cancelButtonProps: { style: { display: "none" } },
         icon: error ? "exclamation-circle" : "info-circle",
-        okType: "default",
+        okType: "default"
       });
     },
     handleAlertAction(alertId) {
@@ -1392,9 +1388,9 @@ export default {
           this.$http
             .post("/api/v1/decision/alert/parseaction", {
               analyse_id: alertId,
-              token: token,
+              token: token
             })
-            .then((res) => {
+            .then(res => {
               if (res.code === 200 && res.data && res.data.workflow_uuid) {
                 const workflowUuid = res.data.workflow_uuid;
                 this.$message.success("剧本生成成功，正在跳转到处置流程");
@@ -1408,11 +1404,11 @@ export default {
                 this.$message.error("剧本生成失败: " + (res.msg || "未知错误"));
               }
             })
-            .catch((error) => {
+            .catch(error => {
               console.error("调用 parseaction 接口失败:", error);
               this.$message.error("剧本生成失败，请稍后重试");
             });
-        },
+        }
       });
     },
     // Add helper methods for coloring severity and status
@@ -1451,7 +1447,7 @@ export default {
     fetchAlertData() {
       return this.$http
         .get("/api/v1/soar/get/alert/message", { page: 1, size: 10 })
-        .then((res) => {
+        .then(res => {
           console.log("Alert Data Response:", res); // 检查 API 返回数据
           if (res.code == 0) {
             return res.data;
@@ -1460,7 +1456,7 @@ export default {
             return { list: [] };
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Failed to fetch alert data:", err); // 检查是否有网络或其他错误
           return { list: [] };
         });
@@ -1471,10 +1467,10 @@ export default {
       // 处理数据格式，分割多个流程
       const lines = recommendedActions
         .split("\n")
-        .filter((line) => line.trim().length > 0);
+        .filter(line => line.trim().length > 0);
       const workflows = [];
 
-      lines.forEach((line) => {
+      lines.forEach(line => {
         const trimmedLine = line.trim();
         if (trimmedLine.includes("->")) {
           // 判断是否为推荐最优解
@@ -1484,14 +1480,14 @@ export default {
             : trimmedLine;
           const steps = workflowText
             .split("->")
-            .map((step) => step.trim())
-            .filter((step) => step.length > 0);
+            .map(step => step.trim())
+            .filter(step => step.length > 0);
 
           if (steps.length > 0) {
             workflows.push({
               steps,
               isOptimal,
-              title: isOptimal ? "推荐最优解" : "备选方案",
+              title: isOptimal ? "推荐最优解" : "备选方案"
             });
           }
         }
@@ -1505,8 +1501,8 @@ export default {
         "div",
         {
           style: {
-            marginTop: "8px",
-          },
+            marginTop: "8px"
+          }
         },
         workflows.map((workflow, workflowIndex) => {
           // 为推荐最优解和备选方案使用不同的颜色方案
@@ -1517,7 +1513,7 @@ export default {
                 "#e6f7ff", // 浅蓝色
                 "#f9f0ff", // 浅紫色
                 "#fff2e8", // 浅橙色
-                "#fcffe6", // 浅黄色
+                "#fcffe6" // 浅黄色
               ]
             : [
                 "#f5f5f5", // 浅灰色（备选）
@@ -1525,7 +1521,7 @@ export default {
                 "#f0f0f0", // 中等灰色
                 "#e8e8e8", // 稍深灰色
                 "#eeeeee", // 浅灰色
-                "#f7f7f7", // 极浅灰色
+                "#f7f7f7" // 极浅灰色
               ];
 
           const borderColors = workflow.isOptimal
@@ -1535,7 +1531,7 @@ export default {
                 "#91d5ff", // 蓝色边框
                 "#d3adf7", // 紫色边框
                 "#ffc069", // 橙色边框
-                "#eaff8f", // 黄色边框
+                "#eaff8f" // 黄色边框
               ]
             : [
                 "#d9d9d9", // 灰色边框（备选）
@@ -1543,7 +1539,7 @@ export default {
                 "#a6a6a6", // 更深灰色边框
                 "#8c8c8c", // 暗灰色边框
                 "#737373", // 深暗灰色边框
-                "#595959", // 最深灰色边框
+                "#595959" // 最深灰色边框
               ];
 
           return h(
@@ -1558,8 +1554,8 @@ export default {
                   ? "2px solid #52c41a"
                   : "1px solid #d9d9d9",
                 borderRadius: "8px",
-                backgroundColor: workflow.isOptimal ? "#f6ffed" : "#fafafa",
-              },
+                backgroundColor: workflow.isOptimal ? "#f6ffed" : "#fafafa"
+              }
             },
             [
               // 标题
@@ -1572,14 +1568,14 @@ export default {
                     color: workflow.isOptimal ? "#389e0d" : "#595959",
                     marginBottom: "8px",
                     display: "flex",
-                    alignItems: "center",
-                  },
+                    alignItems: "center"
+                  }
                 },
                 [
                   workflow.isOptimal
                     ? h("span", { style: { marginRight: "6px" } }, "⭐")
                     : null,
-                  workflow.title,
+                  workflow.title
                 ]
               ),
 
@@ -1592,8 +1588,8 @@ export default {
                     flexDirection: "row",
                     alignItems: "center",
                     flexWrap: "wrap",
-                    gap: "8px",
-                  },
+                    gap: "8px"
+                  }
                 },
                 workflow.steps
                   .map((step, index) => {
@@ -1615,8 +1611,8 @@ export default {
                             minWidth: "60px",
                             textAlign: "center",
                             boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-                            transition: "all 0.3s ease",
-                          },
+                            transition: "all 0.3s ease"
+                          }
                         },
                         step
                       ),
@@ -1631,45 +1627,45 @@ export default {
                                 color: workflow.isOptimal
                                   ? "#52c41a"
                                   : "#8c8c8c",
-                                fontWeight: "bold",
-                              },
+                                fontWeight: "bold"
+                              }
                             },
                             "→"
                           )
-                        : null,
+                        : null
                     ];
                   })
                   .flat()
                   .filter(Boolean)
-              ),
+              )
             ]
           );
         })
       );
-    },
+    }
   },
   watch: {
-    "$store.getters.getTheme": function (e) {
+    "$store.getters.getTheme": function(e) {
       this.theme = this.$store.getters.getTheme;
       if (this.theme === "bright") {
         this.piePlot.update({
           label: {
             style: {
-              fill: "#000",
-            },
-          },
+              fill: "#000"
+            }
+          }
         });
       } else if (this.theme === "dark") {
         this.piePlot.update({
           label: {
             style: {
-              fill: "#fff",
-            },
-          },
+              fill: "#fff"
+            }
+          }
         });
       }
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="less" scoped>
