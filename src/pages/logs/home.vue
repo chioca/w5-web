@@ -113,7 +113,7 @@
                 <a-col :span="24">
                     <div class="header">
                         <!-- <img class="logo" :src="BaseURL+'/public/logo.png'" /> -->
-                        <p class="logo_title">W5 SOAR v{{W5Version}} 执行报告 </p>
+                        <p class="logo_title">智能安全运营平台执行报告 </p>
                     </div>
                 </a-col>
                 <a-col :span="24">
